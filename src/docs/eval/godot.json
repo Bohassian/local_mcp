@@ -1,0 +1,346 @@
+{
+  "description": "Godot retrieval eval (searches limited to godot-manual + godot-api, as a project's AGENTS.md would). A query hits if any top-k result comes from one of its `pages` (godot-docs paths). `symbol` is the API name lookup_symbol should resolve (phase 2.5 step 3). Kinds: concept (how-do-I, manual pages), api (class named in the query), api-bare (identifier only), api-implicit (API question in plain English), api-howto (everyday task answered by the class reference; where big settings/server classes tend to intrude).",
+  "sources": ["godot-manual", "godot-api"],
+  "queries": [
+    {
+      "kind": "concept",
+      "query": "How do I make a Node2D follow the mouse?",
+      "pages": [
+        "tutorials/inputs/mouse_and_input_coordinates.rst",
+        "tutorials/inputs/input_examples.rst",
+        "tutorials/2d/2d_movement.rst"
+      ]
+    },
+    {
+      "kind": "concept",
+      "query": "How do signals work and how do I connect one in code?",
+      "pages": [
+        "getting_started/step_by_step/signals.rst"
+      ]
+    },
+    {
+      "kind": "concept",
+      "query": "What is the difference between _process and _physics_process?",
+      "pages": [
+        "tutorials/scripting/idle_and_physics_processing.rst"
+      ]
+    },
+    {
+      "kind": "concept",
+      "query": "How do I save and load game progress to a file?",
+      "pages": [
+        "tutorials/io/saving_games.rst",
+        "tutorials/io/runtime_file_loading_and_saving.rst"
+      ]
+    },
+    {
+      "kind": "concept",
+      "query": "How do I create a global singleton that persists between scenes?",
+      "pages": [
+        "tutorials/scripting/singletons_autoload.rst"
+      ]
+    },
+    {
+      "kind": "concept",
+      "query": "How do I switch to a different scene?",
+      "pages": [
+        "tutorials/scripting/change_scenes_manually.rst",
+        "tutorials/scripting/singletons_autoload.rst"
+      ]
+    },
+    {
+      "kind": "concept",
+      "query": "How do I pause the game but keep the pause menu working?",
+      "pages": [
+        "tutorials/scripting/pausing_games.rst"
+      ]
+    },
+    {
+      "kind": "concept",
+      "query": "How do I export a variable so it shows in the inspector?",
+      "pages": [
+        "tutorials/scripting/gdscript/gdscript_exports.rst"
+      ]
+    },
+    {
+      "kind": "concept",
+      "query": "How do I add type hints to GDScript variables and functions?",
+      "pages": [
+        "tutorials/scripting/gdscript/static_typing.rst"
+      ]
+    },
+    {
+      "kind": "concept",
+      "query": "How do I cast a ray to check what is in front of the player?",
+      "pages": [
+        "tutorials/physics/ray-casting.rst"
+      ]
+    },
+    {
+      "kind": "concept",
+      "query": "How do I make a platformer character move and collide with walls?",
+      "pages": [
+        "tutorials/physics/using_character_body_2d.rst",
+        "tutorials/physics/kinematic_character_2d.rst",
+        "tutorials/2d/2d_movement.rst"
+      ]
+    },
+    {
+      "kind": "concept",
+      "query": "How do I detect when the player enters an area?",
+      "pages": [
+        "tutorials/physics/using_area_2d.rst"
+      ]
+    },
+    {
+      "kind": "concept",
+      "query": "How do I set up input actions like jump in the input map?",
+      "pages": [
+        "tutorials/inputs/inputevent.rst",
+        "tutorials/inputs/input_examples.rst",
+        "getting_started/step_by_step/scripting_player_input.rst"
+      ]
+    },
+    {
+      "kind": "api",
+      "query": "CharacterBody2D move_and_slide",
+      "pages": [
+        "classes/class_characterbody2d.rst"
+      ],
+      "symbol": "CharacterBody2D.move_and_slide"
+    },
+    {
+      "kind": "api",
+      "query": "Node2D global_position",
+      "pages": [
+        "classes/class_node2d.rst"
+      ],
+      "symbol": "Node2D.global_position"
+    },
+    {
+      "kind": "api",
+      "query": "What arguments does Tween.tween_property take?",
+      "pages": [
+        "classes/class_tween.rst"
+      ],
+      "symbol": "Tween.tween_property"
+    },
+    {
+      "kind": "api",
+      "query": "Input.is_action_just_pressed",
+      "pages": [
+        "classes/class_input.rst"
+      ],
+      "symbol": "Input.is_action_just_pressed"
+    },
+    {
+      "kind": "api",
+      "query": "Timer timeout signal",
+      "pages": [
+        "classes/class_timer.rst"
+      ],
+      "symbol": "Timer.timeout"
+    },
+    {
+      "kind": "api",
+      "query": "What does Node.queue_free do?",
+      "pages": [
+        "classes/class_node.rst"
+      ],
+      "symbol": "Node.queue_free"
+    },
+    {
+      "kind": "api",
+      "query": "Vector2 angle_to_point",
+      "pages": [
+        "classes/class_vector2.rst"
+      ],
+      "symbol": "Vector2.angle_to_point"
+    },
+    {
+      "kind": "api",
+      "query": "AnimationPlayer play method parameters",
+      "pages": [
+        "classes/class_animationplayer.rst"
+      ],
+      "symbol": "AnimationPlayer.play"
+    },
+    {
+      "kind": "api",
+      "query": "RandomNumberGenerator randi_range",
+      "pages": [
+        "classes/class_randomnumbergenerator.rst"
+      ],
+      "symbol": "RandomNumberGenerator.randi_range"
+    },
+    {
+      "kind": "api",
+      "query": "get_tree().create_timer",
+      "pages": [
+        "classes/class_scenetree.rst"
+      ],
+      "symbol": "SceneTree.create_timer"
+    },
+    {
+      "kind": "api-bare",
+      "query": "move_and_slide",
+      "pages": [
+        "classes/class_characterbody2d.rst",
+        "classes/class_characterbody3d.rst"
+      ],
+      "symbol": "CharacterBody2D.move_and_slide"
+    },
+    {
+      "kind": "api-bare",
+      "query": "is_action_just_pressed",
+      "pages": [
+        "classes/class_input.rst",
+        "classes/class_inputevent.rst"
+      ],
+      "symbol": "Input.is_action_just_pressed"
+    },
+    {
+      "kind": "api-bare",
+      "query": "queue_free",
+      "pages": [
+        "classes/class_node.rst"
+      ],
+      "symbol": "Node.queue_free"
+    },
+    {
+      "kind": "api-bare",
+      "query": "lerp_angle",
+      "pages": [
+        "classes/class_@globalscope.rst"
+      ],
+      "symbol": "@GlobalScope.lerp_angle"
+    },
+    {
+      "kind": "api-implicit",
+      "query": "How do I wait two seconds inside a function before continuing?",
+      "pages": [
+        "classes/class_scenetree.rst",
+        "classes/class_timer.rst",
+        "tutorials/scripting/gdscript/gdscript_basics.rst"
+      ],
+      "symbol": "SceneTree.create_timer"
+    },
+    {
+      "kind": "api-implicit",
+      "query": "Which method returns the angle from a vector to a point?",
+      "pages": [
+        "classes/class_vector2.rst"
+      ],
+      "symbol": "Vector2.angle_to_point"
+    },
+    {
+      "kind": "api-implicit",
+      "query": "How do I get a random integer between two numbers?",
+      "pages": [
+        "classes/class_randomnumbergenerator.rst",
+        "classes/class_@globalscope.rst",
+        "tutorials/math/random_number_generation.rst"
+      ],
+      "symbol": "@GlobalScope.randi_range"
+    },
+    {
+      "kind": "api-implicit",
+      "query": "Which signal fires when a body enters an Area2D?",
+      "pages": [
+        "classes/class_area2d.rst",
+        "tutorials/physics/using_area_2d.rst"
+      ],
+      "symbol": "Area2D.body_entered"
+    },
+    {
+      "kind": "api-howto",
+      "query": "How do I make the camera follow the player smoothly?",
+      "pages": [
+        "classes/class_camera2d.rst",
+        "classes/class_camera3d.rst"
+      ]
+    },
+    {
+      "kind": "api-howto",
+      "query": "How do I play a sound effect when the player jumps?",
+      "pages": [
+        "classes/class_audiostreamplayer.rst",
+        "classes/class_audiostreamplayer2d.rst",
+        "tutorials/audio/audio_streams.rst",
+        "classes/class_audiostreamplayer3d.rst",
+        "getting_started/first_2d_game/07.finishing-up.rst"
+      ]
+    },
+    {
+      "kind": "api-howto",
+      "query": "How do I change the text of a label from code?",
+      "pages": [
+        "classes/class_label.rst",
+        "classes/class_label3d.rst"
+      ]
+    },
+    {
+      "kind": "api-howto",
+      "query": "How do I hide a node so it is not drawn?",
+      "pages": [
+        "classes/class_canvasitem.rst",
+        "classes/class_node3d.rst"
+      ]
+    },
+    {
+      "kind": "api-howto",
+      "query": "How do I run code when a button is clicked?",
+      "pages": [
+        "classes/class_basebutton.rst",
+        "classes/class_button.rst"
+      ]
+    },
+    {
+      "kind": "api-howto",
+      "query": "How do I draw a line in 2D?",
+      "pages": [
+        "classes/class_canvasitem.rst",
+        "classes/class_line2d.rst",
+        "tutorials/2d/custom_drawing_in_2d.rst"
+      ]
+    },
+    {
+      "kind": "api-howto",
+      "query": "How do I make an enemy move toward the player?",
+      "pages": [
+        "classes/class_vector2.rst",
+        "classes/class_vector3.rst",
+        "classes/class_characterbody2d.rst",
+        "tutorials/2d/2d_movement.rst",
+        "tutorials/math/vector_math.rst"
+      ]
+    },
+    {
+      "kind": "api-howto",
+      "query": "How do I check which bodies are overlapping an area?",
+      "pages": [
+        "classes/class_area2d.rst",
+        "classes/class_area3d.rst"
+      ]
+    },
+    {
+      "kind": "api-howto",
+      "query": "How do I start and stop an animation on a sprite?",
+      "pages": [
+        "classes/class_animatedsprite2d.rst",
+        "classes/class_animationplayer.rst",
+        "tutorials/2d/2d_sprite_animation.rst"
+      ]
+    },
+    {
+      "kind": "api-howto",
+      "query": "How do I load a scene and add it as a child at runtime?",
+      "pages": [
+        "classes/class_packedscene.rst",
+        "classes/class_node.rst",
+        "getting_started/step_by_step/instancing.rst",
+        "tutorials/scripting/nodes_and_scene_instances.rst"
+      ]
+    }
+  ]
+}

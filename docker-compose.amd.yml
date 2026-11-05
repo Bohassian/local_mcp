@@ -1,0 +1,8 @@
+# Runs Ollama on an AMD GPU (ROCm). Enable with COMPOSE_FILE in .env (see
+# .env.example). Keep the version in step with docker-compose.yml.
+services:
+  ollama:
+    image: ollama/ollama:0.24.0-rocm
+    devices:
+      - /dev/kfd
+      - /dev/dri

@@ -1,0 +1,70 @@
+{
+  "sources": [
+    {
+      "id": "godot-manual",
+      "name": "Godot manual",
+      "version": "4.x (godot-docs master)",
+      "description": "Godot 4 manual and tutorials: concepts, how-tos, workflows (scenes, signals, physics, input, UI, GDScript language guide).",
+      "format": "rst",
+      "path": "godot-docs",
+      "include": [
+        "getting_started/",
+        "tutorials/"
+      ]
+    },
+    {
+      "id": "godot-api",
+      "name": "Godot class reference",
+      "version": "4.x (godot-docs master)",
+      "description": "Godot 4 class reference: every engine class with its methods, properties, signals, constants and theme items. Use for exact API names and signatures.",
+      "format": "godot-classref",
+      "path": "godot-docs",
+      "include": [
+        "classes/"
+      ]
+    },
+    {
+      "id": "reference",
+      "name": "Reference notes",
+      "version": "",
+      "description": "User-written markdown notes: project conventions, design notes, cheat sheets.",
+      "format": "markdown",
+      "path": "reference",
+      "include": [
+        ""
+      ]
+    },
+    {
+      "id": "rails~7.1",
+      "name": "Ruby on Rails 7.1",
+      "version": "",
+      "description": "Rails 7.1 API reference (Active Record, Action Controller, Action View, Active Job, Action Mailer, Active Support, ...) and the Rails Guides.",
+      "format": "devdocs",
+      "path": "devdocs/rails~7.1"
+    },
+    {
+      "id": "ruby~3.2",
+      "name": "Ruby 3.2",
+      "version": "",
+      "description": "Ruby 3.2 core and standard library reference (String, Array, Hash, Enumerable, File, Time, ...).",
+      "format": "devdocs",
+      "path": "devdocs/ruby~3.2"
+    },
+    {
+      "id": "rails~8.1",
+      "name": "Ruby on Rails 8.1",
+      "version": "",
+      "description": "Rails 8.1 API reference (Active Record, Action Controller, Action View, Active Job, Action Mailer, Active Support, ...) and the Rails Guides.",
+      "format": "devdocs",
+      "path": "devdocs/rails~8.1"
+    },
+    {
+      "id": "ruby~4.0",
+      "name": "Ruby 4.0",
+      "version": "",
+      "description": "Ruby 4.0 core and standard library reference (String, Array, Hash, Enumerable, File, Time, ...).",
+      "format": "devdocs",
+      "path": "devdocs/ruby~4.0"
+    }
+  ]
+}

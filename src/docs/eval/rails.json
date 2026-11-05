@@ -1,0 +1,285 @@
+{
+  "description": "Rails 7.1 / Ruby 3.2 retrieval eval (searches limited to rails~7.1 + ruby~3.2, as a project's AGENTS.md would). Same kinds as godot.json.",
+  "queries": [
+    {
+      "kind": "concept",
+      "query": "How do I add a column to an existing table?",
+      "pages": [
+        "guides/active_record_migrations",
+        "activerecord/connectionadapters/schemastatements"
+      ],
+      "sources": [
+        "rails~7.1",
+        "ruby~3.2"
+      ]
+    },
+    {
+      "kind": "concept",
+      "query": "How do I avoid N+1 queries when loading associations?",
+      "pages": [
+        "guides/active_record_querying",
+        "activerecord/querymethods"
+      ],
+      "sources": [
+        "rails~7.1",
+        "ruby~3.2"
+      ]
+    },
+    {
+      "kind": "concept",
+      "query": "How do I set up a many-to-many relationship through a join model?",
+      "pages": [
+        "guides/association_basics",
+        "activerecord/associations/classmethods"
+      ],
+      "sources": [
+        "rails~7.1",
+        "ruby~3.2"
+      ]
+    },
+    {
+      "kind": "concept",
+      "query": "How do I validate that an email field is present and unique?",
+      "pages": [
+        "guides/active_record_validations",
+        "activemodel/validations/helpermethods",
+        "activemodel/validations/classmethods",
+        "activerecord/validations/classmethods"
+      ],
+      "sources": [
+        "rails~7.1",
+        "ruby~3.2"
+      ]
+    },
+    {
+      "kind": "concept",
+      "query": "How do I run code before every action in a controller?",
+      "pages": [
+        "guides/action_controller_overview",
+        "abstractcontroller/callbacks/classmethods"
+      ],
+      "sources": [
+        "rails~7.1",
+        "ruby~3.2"
+      ]
+    },
+    {
+      "kind": "concept",
+      "query": "How do I send an email in the background after a user signs up?",
+      "pages": [
+        "guides/action_mailer_basics",
+        "actionmailer/messagedelivery",
+        "guides/active_job_basics"
+      ],
+      "sources": [
+        "rails~7.1",
+        "ruby~3.2"
+      ]
+    },
+    {
+      "kind": "concept",
+      "query": "How do I define nested resource routes?",
+      "pages": [
+        "guides/routing",
+        "actiondispatch/routing/mapper/resources"
+      ],
+      "sources": [
+        "rails~7.1",
+        "ruby~3.2"
+      ]
+    },
+    {
+      "kind": "concept",
+      "query": "How do I write a test for a model?",
+      "pages": [
+        "guides/testing"
+      ],
+      "sources": [
+        "rails~7.1",
+        "ruby~3.2"
+      ]
+    },
+    {
+      "kind": "api",
+      "query": "QueryMethods where with a hash of conditions",
+      "pages": [
+        "activerecord/querymethods"
+      ],
+      "sources": [
+        "rails~7.1",
+        "ruby~3.2"
+      ]
+    },
+    {
+      "kind": "api",
+      "query": "ActionController::Parameters permit",
+      "pages": [
+        "actioncontroller/parameters"
+      ],
+      "sources": [
+        "rails~7.1",
+        "ruby~3.2"
+      ]
+    },
+    {
+      "kind": "api",
+      "query": "FinderMethods find_by",
+      "pages": [
+        "activerecord/findermethods"
+      ],
+      "sources": [
+        "rails~7.1",
+        "ruby~3.2"
+      ]
+    },
+    {
+      "kind": "api",
+      "query": "Hash dig with nested keys",
+      "pages": [
+        "hash"
+      ],
+      "sources": [
+        "rails~7.1",
+        "ruby~3.2"
+      ]
+    },
+    {
+      "kind": "api",
+      "query": "Enumerable group_by",
+      "pages": [
+        "enumerable"
+      ],
+      "sources": [
+        "rails~7.1",
+        "ruby~3.2"
+      ]
+    },
+    {
+      "kind": "api-bare",
+      "query": "pluck",
+      "pages": [
+        "activerecord/calculations"
+      ],
+      "sources": [
+        "rails~7.1",
+        "ruby~3.2"
+      ]
+    },
+    {
+      "kind": "api-bare",
+      "query": "before_action",
+      "pages": [
+        "abstractcontroller/callbacks/classmethods"
+      ],
+      "sources": [
+        "rails~7.1",
+        "ruby~3.2"
+      ]
+    },
+    {
+      "kind": "api-bare",
+      "query": "deliver_later",
+      "pages": [
+        "actionmailer/messagedelivery"
+      ],
+      "sources": [
+        "rails~7.1",
+        "ruby~3.2"
+      ]
+    },
+    {
+      "kind": "api-bare",
+      "query": "each_with_object",
+      "pages": [
+        "enumerable"
+      ],
+      "sources": [
+        "rails~7.1",
+        "ruby~3.2"
+      ]
+    },
+    {
+      "kind": "api-bare",
+      "query": "transform_values",
+      "pages": [
+        "hash"
+      ],
+      "sources": [
+        "rails~7.1",
+        "ruby~3.2"
+      ]
+    },
+    {
+      "kind": "api-howto",
+      "query": "How do I find records where a column is not null?",
+      "pages": [
+        "activerecord/querymethods/wherechain",
+        "activerecord/querymethods",
+        "guides/active_record_querying"
+      ],
+      "sources": [
+        "rails~7.1",
+        "ruby~3.2"
+      ]
+    },
+    {
+      "kind": "api-howto",
+      "query": "How do I get just the ids of matching records as an array?",
+      "pages": [
+        "activerecord/calculations",
+        "activerecord/findermethods",
+        "guides/active_record_querying"
+      ],
+      "sources": [
+        "rails~7.1",
+        "ruby~3.2"
+      ]
+    },
+    {
+      "kind": "api-howto",
+      "query": "How do I wrap several updates so they all roll back on failure?",
+      "pages": [
+        "activerecord/transactions/classmethods",
+        "guides/active_record_basics"
+      ],
+      "sources": [
+        "rails~7.1",
+        "ruby~3.2"
+      ]
+    },
+    {
+      "kind": "api-howto",
+      "query": "How do I define a reusable query on a model like published posts?",
+      "pages": [
+        "activerecord/scoping/named/classmethods",
+        "guides/active_record_querying"
+      ],
+      "sources": [
+        "rails~7.1",
+        "ruby~3.2"
+      ]
+    },
+    {
+      "kind": "api-howto",
+      "query": "How do I replace every match of a pattern in a string?",
+      "pages": [
+        "string"
+      ],
+      "sources": [
+        "rails~7.1",
+        "ruby~3.2"
+      ]
+    },
+    {
+      "kind": "api-howto",
+      "query": "How do I check whether a string begins with a prefix?",
+      "pages": [
+        "string"
+      ],
+      "sources": [
+        "rails~7.1",
+        "ruby~3.2"
+      ]
+    }
+  ]
+}

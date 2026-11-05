@@ -1,0 +1,11 @@
+# Runs Ollama on an NVIDIA GPU. Needs the NVIDIA container toolkit.
+# Enable with COMPOSE_FILE in .env (see .env.example).
+services:
+  ollama:
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [gpu]

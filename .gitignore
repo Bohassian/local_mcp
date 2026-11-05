@@ -1,0 +1,13 @@
+node_modules/
+dist/
+*.tsbuildinfo
+
+.env
+.env.local
+
+# Downloaded docs and the docs store
+data/*
+!data/.gitkeep
+
+.DS_Store
+*.log
