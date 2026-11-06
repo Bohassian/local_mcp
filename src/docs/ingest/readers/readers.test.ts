@@ -2,7 +2,7 @@ import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 import { readGodotClassRef } from './godot-classref.js';
 import { readMarkdown } from './markdown.js';
-import { readRst } from './rst.js';
+import { cleanInlineRst, readRst } from './rst.js';
 
 // Readers turn one source file into a Page: its sections (later chunked and
 // embedded) and its symbols (API names, for lookup_symbol and symbol search).
@@ -30,6 +30,20 @@ describe('readRst', () => {
       page?.sections.map((s) => s.heading),
       ['Using signals', 'Using signals › Connecting'],
     );
+  });
+});
+
+describe('cleanInlineRst', () => {
+  it('reduces heading markup to plain text', () => {
+    assert.equal(cleanInlineRst('1: :ref:`bool<class_bool>`'), '1: bool');
+    assert.equal(cleanInlineRst('Would increasing ``repeat_times`` fix this?'), 'Would increasing repeat_times fix this?');
+    assert.equal(cleanInlineRst('_process vs. \\*_input'), '_process vs. *_input');
+    assert.equal(cleanInlineRst('Handling :bbcode:`[url]` tag clicks'), 'Handling [url] tag clicks');
+  });
+
+  it('is applied to section headings', () => {
+    const page = readRst('', 'p.rst', 'Page\n====\n\nIntro.\n\nUsing ``foo``\n-------------\n\nText.\n');
+    assert.equal(page?.sections[1].heading, 'Page › Using foo');
   });
 });
 

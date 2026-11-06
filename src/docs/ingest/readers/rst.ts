@@ -3,13 +3,25 @@ import type { Page, Reader, Section } from './types.js';
 // RST underline/overline characters used for section titles.
 const ADORNMENT = /^([=\-~^*#"'`+:._])\1{2,}\s*$/;
 
+// Inline markup in a heading, reduced to plain text: roles become their text
+// (:ref:`bool<class_bool>` -> bool, :bbcode:`[url]` -> [url]), ``code``
+// becomes code, and escapes (\*) become the character. Headings are shown in
+// search results and embedded with each chunk, so markup there is noise.
+export function cleanInlineRst(text: string): string {
+  return text
+    .replace(/:[a-z-]+:`([^`<]+?)\s*<[^>]+>`/g, '$1')
+    .replace(/:[a-z-]+:`([^`]+)`/g, '$1')
+    .replace(/``([^`]+)``/g, '$1')
+    .replace(/\\(.)/g, '$1');
+}
+
 // Page title: the first adorned heading.
 export function deriveTitle(rst: string, fallback: string): string {
   const lines = rst.split('\n');
   for (let i = 0; i < lines.length - 1; i++) {
     const line = lines[i].trim();
     if (line && ADORNMENT.test(lines[i + 1]) && lines[i + 1].trim().length >= line.length - 2) {
-      return line;
+      return cleanInlineRst(line);
     }
   }
   return fallback;
@@ -42,7 +54,7 @@ export function splitRstSections(rst: string, title: string): Section[] {
       // Drop this heading's overline, already pushed into the buffer.
       if (buf.length > 0 && ADORNMENT.test(buf[buf.length - 1])) buf.pop();
       flush();
-      const name = line.trim();
+      const name = cleanInlineRst(line.trim());
       heading = name === title ? title : `${title} › ${name}`;
       i++;
       continue;
