@@ -11,6 +11,11 @@ describe('queryTerms: splitting a query into words for keyword and symbol search
     assert.deepEqual(queryTerms('How do I use Node.queue_free()?'), ['Node.queue_free']);
   });
 
+  it('keeps a stopword when it is the whole query: it is probably an API name', () => {
+    assert.deepEqual(queryTerms('where'), ['where']); // Rails QueryMethods#where
+    assert.deepEqual(queryTerms('How do I filter where the name is set'), ['filter', 'name', 'set']);
+  });
+
   it('keeps Ruby-style separators (# and ::) and trailing ? or !', () => {
     assert.deepEqual(queryTerms('ActiveRecord::QueryMethods#where'), ['ActiveRecord::QueryMethods#where']);
     assert.deepEqual(queryTerms('Array#map and File::exist?'), ['Array#map', 'File::exist?']);

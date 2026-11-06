@@ -37,9 +37,13 @@ const MEMBER_SEP = /(?:#|::|\.)/;
 
 // Query words, keeping identifier characters (_ . @ # :) together.
 export function queryTerms(query: string): string[] {
-  return (query.match(/[\p{L}\p{N}_.@#:?!]+/gu) ?? [])
+  const words = (query.match(/[\p{L}\p{N}_.@#:?!]+/gu) ?? [])
     .map((t) => t.replace(/^[.#:]+|[.():]+$/g, ''))
-    .filter((t) => t.length > 1 && !STOPWORDS.has(t.toLowerCase()));
+    .filter((t) => t.length > 1);
+  // A query that is one word is an API name, even a stopword: Rails `where`,
+  // `or`, `with`.
+  if (words.length === 1) return words;
+  return words.filter((t) => !STOPWORDS.has(t.toLowerCase()));
 }
 
 export function vectorIds(db: DocsDb, vector: number[], sources: string[]): number[] {
