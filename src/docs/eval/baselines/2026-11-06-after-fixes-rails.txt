@@ -1,0 +1,64 @@
+# yarn eval rails (k=5, all modes), 2026-11-06, after fixing issues 2-4 (55ad228). Issue 1 (paraphrase) still open.
+
+
+== vector
+  concept       hit@5 8/8 (100%)   MRR 0.94
+  api           hit@5 5/5 (100%)   MRR 0.90
+  api-bare      hit@5 5/5 (100%)   MRR 0.67
+  api-howto     hit@5 6/6 (100%)   MRR 0.81
+  paraphrase    hit@5 2/2 (100%)   MRR 1.00
+  api-stopword  hit@5 2/5 (40%)    MRR 0.40
+  api-question  hit@5 2/2 (100%)   MRR 1.00
+  api-predicate hit@5 4/4 (100%)   MRR 0.83
+  all           hit@5 34/37 (92%)  MRR 0.80
+  noise: 0/185 (0%) of results from big settings/server classes
+  markup: 0/185 (0%) of results with RST markup in their heading
+  misses:
+  [api-stopword] where
+      got: reline/generalio, guides/active_record_querying, rails/command/base, bundler, reline/windows
+  [api-stopword] or
+      got: trueclass, nilclass, falseclass, ipaddr, integer
+  [api-stopword] and
+      got: trueclass, falseclass, nilclass, guides/action_view_helpers, integer
+
+== fts
+  concept       hit@5 8/8 (100%)   MRR 0.74
+  api           hit@5 5/5 (100%)   MRR 1.00
+  api-bare      hit@5 5/5 (100%)   MRR 0.73
+  api-howto     hit@5 4/6 (67%)    MRR 0.40
+  paraphrase    hit@5 1/2 (50%)    MRR 0.10
+  api-stopword  hit@5 4/5 (80%)    MRR 0.42
+  api-question  hit@5 2/2 (100%)   MRR 0.67
+  api-predicate hit@5 3/4 (75%)    MRR 0.75
+  all           hit@5 32/37 (86%)  MRR 0.64
+  noise: 0/185 (0%) of results from big settings/server classes
+  markup: 0/185 (0%) of results with RST markup in their heading
+  misses:
+  [api-howto] How do I find records where a column is not null?
+      got: activerecord/connectionadapters/schemastatements, find, guides/active_record_migrations, activerecord/connectionadapters/table, activerecord/modelschema
+  [api-howto] How do I wrap several updates so they all roll back on failure?
+      got: actioncontroller/streaming, actioncontroller/renderers/all, guides/active_record_migrations, activerecord/batches/batchenumerator, openssl/timestamp/response
+  [paraphrase] How do I remember who is logged in across requests?
+      got: guides/i18n, guides/testing, guides/action_view_overview, actioncontroller/conditionalget/classmethods, abstractcontroller/helpers/classmethods
+  [api-stopword] How do I use or to combine two scopes
+      got: zlib, didyoumean/classnamechecker, activerecord/scoping/default/classmethods, guides/association_basics
+  [api-predicate] include?
+      got: actiondispatch/http/headers, activesupport/hashwithindifferentaccess, actioncontroller/parameters, activemodel/errors, cgi/queryextension
+
+== hybrid
+  concept       hit@5 8/8 (100%)   MRR 1.00
+  api           hit@5 5/5 (100%)   MRR 1.00
+  api-bare      hit@5 5/5 (100%)   MRR 0.77
+  api-howto     hit@5 5/6 (83%)    MRR 0.72
+  paraphrase    hit@5 2/2 (100%)   MRR 1.00
+  api-stopword  hit@5 4/5 (80%)    MRR 0.70
+  api-question  hit@5 2/2 (100%)   MRR 0.67
+  api-predicate hit@5 4/4 (100%)   MRR 0.88
+  all           hit@5 35/37 (95%)  MRR 0.85
+  noise: 0/185 (0%) of results from big settings/server classes
+  markup: 0/185 (0%) of results with RST markup in their heading
+  misses:
+  [api-howto] How do I wrap several updates so they all roll back on failure?
+      got: activerecord/serializationfailure, activerecord/transactionrollbackerror, activerecord/batches/batchenumerator, activerecord/persistence, activerecord/persistence/classmethods
+  [api-stopword] How do I use or to combine two scopes
+      got: guides/active_record_querying, didyoumean/classnamechecker, guides/upgrading_ruby_on_rails, activerecord/scoping/named/classmethods

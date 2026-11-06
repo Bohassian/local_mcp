@@ -1,0 +1,33 @@
+# yarn eval holdout 5 hybrid, then vector, 2026-11-06 at 55ad228. Fresh paraphrase questions; the reference for any issue-1 fix.
+
+
+== hybrid
+  paraphrase    hit@5 7/11 (64%)   MRR 0.39
+  all           hit@5 7/11 (64%)   MRR 0.39
+  noise: 0/55 (0%) of results from big settings/server classes
+  markup: 0/55 (0%) of results with RST markup in their heading
+  misses:
+  [paraphrase] How do I make an enemy find its way around obstacles?
+      got: tutorials/navigation/navigation_using_navigationobstacles.rst, classes/class_astargrid2d.rst, classes/class_navigationserver3d.rst, getting_started/first_2d_game/04.creating_the_enemy.rst
+  [paraphrase] How do I remember settings like volume between play sessions?
+      got: classes/class_audiostreamplayer.rst, classes/class_videostreamplayer.rst, classes/class_audiostreamplayer2d.rst, classes/class_audiostreamrandomizer.rst
+  [paraphrase] How do I make something happen after a short delay?
+      got: classes/class_methodtweener.rst, classes/class_propertytweener.rst, classes/class_callbacktweener.rst, classes/class_subtweentweener.rst, classes/class_richtextlabel.rst
+  [paraphrase] How do I keep buttons lined up neatly in a menu?
+      got: classes/class_spinbox.rst, classes/class_buttongroup.rst, classes/class_button.rst
+
+
+== vector
+  paraphrase    hit@5 7/11 (64%)   MRR 0.46
+  all           hit@5 7/11 (64%)   MRR 0.46
+  noise: 2/55 (4%) of results from big settings/server classes
+  markup: 0/55 (0%) of results with RST markup in their heading
+  misses:
+  [paraphrase] How do I make an enemy find its way around obstacles?
+      got: tutorials/navigation/navigation_using_navigationobstacles.rst, classes/class_navigationagent2d.rst, classes/class_navigationagent3d.rst, classes/class_navigationobstacle2d.rst
+  [paraphrase] How do I remember settings like volume between play sessions?
+      got: classes/class_videostreamplayer.rst, tutorials/ui/creating_applications.rst, classes/class_audiostreamplayer2d.rst, classes/class_audiostreamplayer.rst
+  [paraphrase] How do I make something happen after a short delay?
+      got: classes/class_os.rst, classes/class_methodtweener.rst, classes/class_propertytweener.rst, classes/class_callbacktweener.rst
+  [paraphrase] How do I keep buttons lined up neatly in a menu?
+      got: classes/class_button.rst, classes/class_tree.rst, classes/class_menubutton.rst, classes/class_tabbar.rst

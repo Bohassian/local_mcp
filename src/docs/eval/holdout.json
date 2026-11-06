@@ -1,0 +1,65 @@
+{
+  "description": "Held-out paraphrase questions (written 2026-11-06, before measuring the keyword-search change they check): how-to questions worded unlike their answer pages. Not used to choose or tune any search change; use them to check that a change chosen on godot.json/rails.json generalizes. Same format as godot.json.",
+  "sources": ["godot-manual", "godot-api"],
+  "queries": [
+    {
+      "kind": "paraphrase",
+      "query": "How do I make my game look right on screens of different sizes?",
+      "pages": ["tutorials/rendering/multiple_resolutions.rst"]
+    },
+    {
+      "kind": "paraphrase",
+      "query": "How do I show the score in the corner of the screen?",
+      "pages": ["getting_started/first_2d_game/06.heads_up_display.rst"]
+    },
+    {
+      "kind": "paraphrase",
+      "query": "How do I make an enemy find its way around obstacles?",
+      "pages": ["tutorials/navigation/navigation_introduction_2d.rst", "tutorials/navigation/navigation_using_navigationagents.rst"]
+    },
+    {
+      "kind": "paraphrase",
+      "query": "How do I make my game run faster when it starts to lag?",
+      "pages": ["tutorials/performance/general_optimization.rst", "tutorials/performance/index.rst"]
+    },
+    {
+      "kind": "paraphrase",
+      "query": "How do I remember settings like volume between play sessions?",
+      "pages": ["tutorials/io/saving_games.rst", "classes/class_configfile.rst"]
+    },
+    {
+      "kind": "paraphrase",
+      "query": "How do I swap to a running animation when the character moves?",
+      "pages": ["tutorials/2d/2d_sprite_animation.rst", "classes/class_animatedsprite2d.rst"]
+    },
+    {
+      "kind": "paraphrase",
+      "query": "How do I stop the camera from showing outside the level?",
+      "pages": ["classes/class_camera2d.rst"]
+    },
+    {
+      "kind": "paraphrase",
+      "query": "How do I let the player collect coins by touching them?",
+      "pages": ["tutorials/physics/using_area_2d.rst", "classes/class_area2d.rst"]
+    },
+    {
+      "kind": "paraphrase",
+      "query": "How do I stop the player from walking through walls?",
+      "pages": [
+        "tutorials/physics/physics_introduction.rst",
+        "tutorials/physics/using_character_body_2d.rst",
+        "tutorials/physics/kinematic_character_2d.rst"
+      ]
+    },
+    {
+      "kind": "paraphrase",
+      "query": "How do I make something happen after a short delay?",
+      "pages": ["classes/class_timer.rst", "classes/class_scenetree.rst"]
+    },
+    {
+      "kind": "paraphrase",
+      "query": "How do I keep buttons lined up neatly in a menu?",
+      "pages": ["tutorials/ui/gui_containers.rst", "tutorials/ui/size_and_anchors.rst"]
+    }
+  ]
+}

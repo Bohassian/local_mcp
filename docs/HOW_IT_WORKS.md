@@ -379,8 +379,9 @@ A real example:
 
 - Vector search ranks **Jumping and squashing monsters › Jumping** 1st. That's
   the right answer, despite sharing no words with the question.
-- Keyword search has nothing for "leap", so it matches "make" and "character"
-  everywhere: "Character animation", even `String.replace_char`.
+- Keyword search can't connect "leap" to jumping. Its list fills with
+  passages that match "make" and "character": "Character animation", even
+  `String.replace_char`.
 - Symbol search finds nothing.
 
 "Jumping" gets 1/61 = 0.0164 from its single list. Meanwhile "Kinematic
@@ -391,16 +392,28 @@ keyword: 1/70 + 1/65 = 0.0297. Two middling votes beat one strong one, and
 `yarn explain "how do I make my character leap" --sources godot-manual,godot-api`
 shows all of this.
 
-A second known weak spot: stopwords. `queryTerms` drops common words like
-"where" and "when" before anything else, which is right for questions but
-wrong for Rails' `where` method. `yarn explain "where" --sources rails~8.1`
-finds `ActiveRecord::QueryMethods#where` only through vector search, at #5,
-while a non-stopword like `pluck` goes straight to the method.
+This one is still open. Here's what was tried and why it didn't work. Each
+attempt seemed reasonable, and each was ruled out by measurement:
 
-Ways one could respond to the first problem, each with costs: add "make" to the stopwords, weight
-the vector list higher for plain-English queries, or drop keyword search when
-its terms are all common words. Don't tune by intuition from one example.
-Measure:
+- **Weight the vector list higher.** The weight boosts every chunk's vector
+  score, including the noisy chunks that are also in the keyword list. Those
+  still collect a second vote. Vector #1 would need about 7× weight to win,
+  which amounts to dropping keyword search.
+- **Require every query word, falling back to any word.** This helped short
+  queries like this one. But real questions are 5–7 words after stopwords,
+  and almost no passage contains them all, so on fresh questions it never
+  triggered.
+- **Drop keyword search when the query's rarest word isn't matched.** Rarity
+  (IDF) does pick "leap" as the meaningful word. But "leap" *is* in the docs:
+  24 passages, about other things. The rare word was found, in the wrong
+  context. Keyword search sees words, not meaning, so it can't tell.
+
+The standard fix is a **reranker**: a model that reads the question next to
+each top candidate and rescores by actual relevance. Until then, hybrid is
+still the best mode overall; the cost falls on questions phrased unlike the
+docs.
+
+Don't tune by intuition from one example. Measure:
 
 ```bash
 yarn eval            # godot question set, top 5, each mode separately
@@ -418,13 +431,22 @@ with known correct pages, and reports:
 Comparing `vector`, `fts` and `hybrid` on the same questions shows what each
 method contributes. Change one thing, re-run, and compare.
 
-Some question kinds exist to track known weak spots: `paraphrase` (the
-"leap" problem above), `api-stopword` (`where`), `api-question` (an API name
-followed by `?`), and `api-predicate` (Ruby names that really end in `?`,
-which a fix must not break). The `markup` line counts results whose heading
-still has RST markup. Saved runs in
+**Beware tuning to the test.** If you try ten variants and keep whichever
+scores best on these questions, you've partly fitted the questions.
+[holdout.json](../src/docs/eval/holdout.json) holds paraphrase questions that
+were written before any change was measured on them. Check a change there
+before believing it (`yarn eval holdout 5 hybrid`). The "every word" attempt
+above looked like an improvement on the main sets and did nothing on the
+holdout.
+
+Some question kinds track specific weak spots: `paraphrase` (the "leap"
+problem above), `api-stopword` (`where` alone as a query), `api-question` (an
+API name followed by `?`), and `api-predicate` (Ruby names that really end in
+`?`, which those fixes must not break). The `markup` line counts results whose
+heading still has RST markup. Saved runs in
 [src/docs/eval/baselines/](../src/docs/eval/baselines/) record the numbers
-before any fixes. To compare, save a new run next to them and diff the two.
+before and after the fixes. To compare, save a new run next to them and diff
+the two.
 
 ---
 
