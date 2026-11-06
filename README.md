@@ -130,13 +130,14 @@ The tests (`src/**/*.test.ts`) double as examples of how chunking, the readers a
 
 ## Updating dependencies
 
-Versions only move deliberately: npm packages through `package-lock.json` (installed with `npm ci`), Docker images through exact tags.
+Versions only move deliberately: npm packages through `package-lock.json` (installed with `npm ci`), Docker images through exact tags (the Node base image also by digest).
 
 - **Releases must be at least 14 days old.** Most compromised packages are caught and pulled within days. `.npmrc` sets `min-release-age=14`, so `npm install` and `npm audit fix` won't pick anything newer. Docker images have no such gate: pick the newest tag past the cutoff by hand and note its release date in the pin comment (see `docker-compose.yml`).
 - **Install scripts are off** (`.npmrc`: `ignore-scripts=true`), on the host and in Docker. Nothing here needs them: better-sqlite3 and sqlite-vec ship prebuilt binaries in their npm packages. Before adding a native package, run `npm view <pkg> scripts`. One that needs an install or postinstall step installs cleanly but fails when loaded. The image has no compilers, so building from source would mean adding them back.
-- **Stay on Debian images, not Alpine.** sqlite-vec has no musl build.
+- **Stay on Debian images, not Alpine.** sqlite-vec has no musl build. The base image is Debian 13 (trixie).
+- **The Node version is in three places**: the Dockerfile's two `FROM` lines (version and digest), `node-version` in `ci.yml`, and your host's Node. Dependabot only updates the Dockerfile, so change the other two with it. A new Node major is a deliberate change, not a Dependabot PR.
 - **Pass script arguments after `--`**, e.g. `npm run ingest -- --all`. Without it, npm takes `--all` as its own option.
-- **Dependabot** (`.github/dependabot.yml`) opens weekly PRs for npm packages, the Ollama image and the CI actions, with the same 14-day cooldown. npm minor and patch bumps come grouped as one PR. Majors come one PR each, except TypeScript and `@types/node`, which are bumped by hand.
+- **Dependabot** (`.github/dependabot.yml`) opens weekly PRs for npm packages, the Node base image, the Ollama image and the CI actions, with the same 14-day cooldown. npm minor and patch bumps come grouped as one PR. Majors come one PR each, except TypeScript and `@types/node`, which are bumped by hand.
 - **Security-update PRs skip the cooldown**: Dependabot opens them as soon as a fix is out. Leave one unmerged until the fix is 14 days old, unless the vulnerability affects how this server runs.
 - **CI** (`.github/workflows/ci.yml`) runs on every PR: `npm ci`, `npm audit --audit-level=high`, typecheck, tests, the Docker build, and a check that the native modules load inside the image. It can't run the server or the evals.
 - **Before merging a bump**, run `npm run eval` for all three sets (`godot`, `rails`, `holdout`) and compare against the numbers from before. For a change made by hand, also run what CI runs: `npm audit`, `npm run typecheck`, `npm test`, `docker compose build mcp`.
