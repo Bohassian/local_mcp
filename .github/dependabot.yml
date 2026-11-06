@@ -20,6 +20,18 @@ updates:
       - dependency-name: "@types/node" # follows the Node major (ci.yml, README)
         update-types: [version-update:semver-major]
 
+  # The node base image in the Dockerfile (version + digest). Dependabot doesn't
+  # touch ci.yml: when it bumps the Node version, change node-version there too.
+  - package-ecosystem: docker
+    directory: /
+    schedule:
+      interval: weekly
+    cooldown:
+      default-days: 14
+    ignore:
+      - dependency-name: node # a new Node major also means ci.yml and the host
+        update-types: [version-update:semver-major]
+
   # ollama/ollama in docker-compose.yml. Before merging, run `npm run
   # embed-drift` and the evals (README, "Updating dependencies").
   - package-ecosystem: docker-compose
