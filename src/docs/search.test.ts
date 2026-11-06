@@ -150,6 +150,13 @@ describe('searchDocs on a small in-memory store', () => {
       { heading: 'CharacterBody2D.floor_snap_length (property)', text: 'Snaps the body to the floor.' },
     ]);
     addPage(db, 'manual', 'jumping.rst', [{ heading: 'Jumping', text: 'Give the player an upward velocity to jump.' }]);
+    addPage(db, 'ruby', 'array', [
+      {
+        heading: 'Array#empty? (method)',
+        text: 'Returns true if there are no elements.',
+        symbol: { name: 'Array#empty?', member: 'empty?', kind: 'method' },
+      },
+    ]);
     addPage(db, 'api', 'class_camera2d.rst', [
       { heading: 'Camera2D (class)', text: 'Camera node for 2D scenes.', symbol: { name: 'Camera2D', kind: 'class' } },
     ]);
@@ -175,6 +182,19 @@ describe('searchDocs on a small in-memory store', () => {
 
   it('symbol search pairs a class with a member named in plain words ("label text" -> Label.text)', async () => {
     assert.equal((await headings('label text', 'hybrid'))[0], 'Label.text (property)');
+  });
+
+  it('symbol search finds an API name that ends a question ("…is_on_floor?")', async () => {
+    const results = await searchDocs(db, toyEmbed, 'How do I check is_on_floor?', { k: 5, mode: 'fts', sources: ['api'] });
+    assert.equal(results[0].heading, 'CharacterBody2D.is_on_floor (method)');
+    const terms = queryTerms('How do I check is_on_floor?');
+    assert.deepEqual(terms, ['check', 'is_on_floor?']); // the ? stays on the term...
+    assert.equal(symbolIds(db, terms, ['api']).length, 1); // ...but symbol search still matches
+  });
+
+  it('symbol search keeps Ruby names that really end in ?', async () => {
+    assert.equal(symbolIds(db, queryTerms('Array#empty?'), []).length, 1);
+    assert.equal(symbolIds(db, queryTerms('empty?'), []).length, 1);
   });
 
   it('symbol search treats "camera" as Camera2D or Camera3D', async () => {

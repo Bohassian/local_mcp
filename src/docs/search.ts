@@ -133,9 +133,15 @@ const MAX_CLASSES_PER_WORD = 10;
 //   4. identifiers as full or member names           `move_and_slide` -> every class's
 export function symbolIds(db: DocsDb, terms: string[], sources: string[]): number[] {
   const find = symbolLookups(db, sources);
-  const words = [...new Set(terms.map((t) => t.toLowerCase()))];
+  // Only identifier-like words lose a trailing mark: "…a model?" must not start
+  // matching classes named Model.
+  const words = [
+    ...new Set(terms.flatMap((t) => (looksLikeIdentifier(t) ? withAndWithoutMark(t) : [t])).map((t) => t.toLowerCase())),
+  ];
   // A one-word query is an API name even when it's a plain word ("pluck").
-  const identifiers = (terms.length === 1 ? terms : terms.filter(looksLikeIdentifier)).map((t) => t.toLowerCase());
+  const identifiers = (terms.length === 1 ? terms : terms.filter(looksLikeIdentifier))
+    .flatMap(withAndWithoutMark)
+    .map((t) => t.toLowerCase());
   const classesByWord = classesNamedBy(find, words);
 
   const rows = [
@@ -145,6 +151,13 @@ export function symbolIds(db: DocsDb, terms: string[], sources: string[]): numbe
     ...bareNames(find, identifiers),
   ];
   return [...new Set(rows.map((r) => r.chunk_id))].slice(0, CANDIDATES_PER_LIST);
+}
+
+// Ruby names can end in ? or ! (`empty?`, `save!`), and queryTerms keeps the
+// mark for them. But a question's own ? lands on its last word too
+// ("…is_on_floor?"). So try the term as written, then without the mark.
+function withAndWithoutMark(term: string): string[] {
+  return /[?!]$/.test(term) ? [term, term.slice(0, -1)] : [term];
 }
 
 // Stage 1. Only terms with a separator: `Node.queue_free`, `Array#map`.
