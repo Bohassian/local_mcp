@@ -24,7 +24,9 @@ jobs:
 
       - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
-          node-version-file: .tool-versions
+          # The project's Node version. Keep in step with the host's Node and
+          # the README; its bundled npm must be 11.10+ (min-release-age).
+          node-version: 24.22.2
 
       # Fails if package-lock.json doesn't match package.json. .npmrc keeps
       # install scripts off here too.

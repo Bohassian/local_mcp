@@ -17,7 +17,7 @@ updates:
       # Majors to take deliberately, not from a weekly PR.
       - dependency-name: typescript # 7 is the Go rewrite
         update-types: [version-update:semver-major]
-      - dependency-name: "@types/node" # follows the Node major in .tool-versions
+      - dependency-name: "@types/node" # follows the Node major (ci.yml, README)
         update-types: [version-update:semver-major]
 
   # ollama/ollama in docker-compose.yml. Before merging, run `npm run

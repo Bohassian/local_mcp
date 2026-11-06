@@ -33,7 +33,7 @@ The server runs in Docker. The npm scripts (ingest, eval) run on the host and sh
 
 ## Run
 
-Needs Docker, plus Node 24 on the host (`.tool-versions` pins the version; its bundled npm must be 11.10+ for the `min-release-age` setting in `.npmrc`). Ollama runs on the CPU unless you enable a GPU with `COMPOSE_FILE` in `.env`: NVIDIA (needs the NVIDIA container toolkit) or AMD (ROCm). See `.env.example`. The CPU is fine for search queries, but ingesting large sources is much slower.
+Needs Docker, plus Node 24 on the host: 24.22.2, the version CI uses (`.github/workflows/ci.yml`). Its bundled npm must be 11.10+ for the `min-release-age` setting in `.npmrc`. Ollama runs on the CPU unless you enable a GPU with `COMPOSE_FILE` in `.env`: NVIDIA (needs the NVIDIA container toolkit) or AMD (ROCm). See `.env.example`. The CPU is fine for search queries, but ingesting large sources is much slower.
 
 ```bash
 cp .env.example .env
