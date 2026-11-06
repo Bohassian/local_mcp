@@ -148,6 +148,6 @@ Versions only move deliberately: npm packages through `package-lock.json` (insta
   ```
 
   Then open a PR so CI runs. `npm update` can also move a package *back* to an older version if the locked one is younger than 14 days. That's the age gate working, not a mistake.
-- **CI** (`.github/workflows/ci.yml`) runs on every PR: `npm ci`, `npm audit --audit-level=high`, typecheck, tests, the Docker build, and a check that the native modules load inside the image. It can't run the server or the evals.
+- **CI** (`.github/workflows/ci.yml`) runs on every PR: `npm ci`, `npm audit signatures` (each package is the one the registry signed), `npm audit --audit-level=high`, typecheck, tests, the Docker build, and a check that the native modules load inside the image. It can't run the server or the evals.
 - **Before merging a bump**, run `npm run eval` for all three sets (`godot`, `rails`, `holdout`) and compare against the numbers from before. For a change made by hand, also run what CI runs: `npm audit`, `npm run typecheck`, `npm test`, `docker compose build mcp`.
 - **Bumping Ollama** can change the vectors the embedding model returns, so they no longer match the ones in `docs.db`. Run `npm run embed-drift` before and after. Identical vectors give 1.00000. A median around 0.999 with an unchanged eval needs nothing. Anything clearly lower means `npm run ingest -- --all`. Changing `EMBED_MODEL` always needs a re-ingest (see `src/docs/store.ts`).
