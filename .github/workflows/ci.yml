@@ -32,6 +32,11 @@ jobs:
       # install scripts off here too.
       - run: npm ci
 
+      # Every installed package's tarball must be the one the npm registry
+      # signed, and any provenance attestations must verify.
+      - name: Verify registry signatures
+        run: npm audit signatures
+
       - name: Audit (high and critical)
         run: npm audit --audit-level=high
 
