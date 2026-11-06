@@ -1,6 +1,9 @@
 {
-  "description": "Godot retrieval eval (searches limited to godot-manual + godot-api, as a project's AGENTS.md would). A query hits if any top-k result comes from one of its `pages` (godot-docs paths). `symbol` is the API name lookup_symbol should resolve (phase 2.5 step 3). Kinds: concept (how-do-I, manual pages), api (class named in the query), api-bare (identifier only), api-implicit (API question in plain English), api-howto (everyday task answered by the class reference; where big settings/server classes tend to intrude).",
-  "sources": ["godot-manual", "godot-api"],
+  "description": "Godot retrieval eval (searches limited to godot-manual + godot-api, as a project's AGENTS.md would). A query hits if any top-k result comes from one of its `pages` (godot-docs paths). `symbol` is the API name lookup_symbol should resolve (phase 2.5 step 3). Kinds: concept (how-do-I, manual pages), api (class named in the query), api-bare (identifier only), api-implicit (API question in plain English), api-howto (everyday task answered by the class reference; where big settings/server classes tend to intrude). Added 2026-11-06 to track known weak spots (see docs/HOW_IT_WORKS.md#when-search-gets-it-wrong): paraphrase (a how-to worded unlike its answer page, so it hinges on vector search surviving fusion), api-question (an API name as the last word of a question, followed by '?').",
+  "sources": [
+    "godot-manual",
+    "godot-api"
+  ],
   "queries": [
     {
       "kind": "concept",
@@ -340,6 +343,80 @@
         "classes/class_node.rst",
         "getting_started/step_by_step/instancing.rst",
         "tutorials/scripting/nodes_and_scene_instances.rst"
+      ]
+    },
+    {
+      "kind": "paraphrase",
+      "query": "How do I make my character leap?",
+      "pages": [
+        "getting_started/first_3d_game/06.jump_and_squash.rst",
+        "tutorials/physics/using_character_body_2d.rst"
+      ]
+    },
+    {
+      "kind": "paraphrase",
+      "query": "How do I freeze everything while a menu is open?",
+      "pages": [
+        "tutorials/scripting/pausing_games.rst"
+      ]
+    },
+    {
+      "kind": "paraphrase",
+      "query": "How do I keep data around when the level changes?",
+      "pages": [
+        "tutorials/scripting/singletons_autoload.rst"
+      ]
+    },
+    {
+      "kind": "paraphrase",
+      "query": "How can my script do something on every frame?",
+      "pages": [
+        "tutorials/scripting/idle_and_physics_processing.rst"
+      ]
+    },
+    {
+      "kind": "paraphrase",
+      "query": "How do I find out what the mouse is pointing at in 3D?",
+      "pages": [
+        "tutorials/physics/ray-casting.rst"
+      ]
+    },
+    {
+      "kind": "paraphrase",
+      "query": "How do I make my game playable in other languages?",
+      "pages": [
+        "tutorials/i18n/internationalizing_games.rst"
+      ]
+    },
+    {
+      "kind": "paraphrase",
+      "query": "How do I make the music quieter than the sound effects?",
+      "pages": [
+        "tutorials/audio/audio_buses.rst"
+      ]
+    },
+    {
+      "kind": "api-question",
+      "query": "When should I use call_deferred?",
+      "pages": [
+        "classes/class_object.rst",
+        "classes/class_callable.rst"
+      ]
+    },
+    {
+      "kind": "api-question",
+      "query": "How do I check whether a CharacterBody2D is_on_floor?",
+      "pages": [
+        "classes/class_characterbody2d.rst"
+      ]
+    },
+    {
+      "kind": "api-question",
+      "query": "How do I use move_toward?",
+      "pages": [
+        "classes/class_@globalscope.rst",
+        "classes/class_vector2.rst",
+        "classes/class_vector3.rst"
       ]
     }
   ]

@@ -22,11 +22,11 @@ export interface SearchResult {
   score: number;
 }
 
-const CANDIDATES = 50; // per list
+const CANDIDATES_PER_LIST = 50; // how many each search method returns for fusion
 const MAX_PER_PAGE = 2; // so one huge class page can't fill the results
 // Damps the gap between ranks 1, 2, 3...; 60 is the value the RRF paper found
 // works well across collections. https://plg.uwaterloo.ca/~gvcormac/cormacksigir09-rrf.pdf
-const RRF_K = 60;
+export const RRF_K = 60;
 
 const STOPWORDS = new Set(
   'a an and are as at be by can do does for from how i in is it me my of on or should so that the this to use using what when where which why with you'.split(' '),
@@ -54,11 +54,11 @@ export function vectorIds(db: DocsDb, vector: number[], sources: string[]): numb
           WHERE embedding MATCH @vec AND k = @k${source ? ' AND source = @source' : ''}
           ORDER BY distance`,
       )
-      .all({ vec: toBuffer(vector), k: CANDIDATES, ...(source ? { source } : {}) });
+      .all({ vec: toBuffer(vector), k: CANDIDATES_PER_LIST, ...(source ? { source } : {}) });
   const rows = sources.length === 0 ? knn() : sources.flatMap((s) => knn(s));
   return rows
     .sort((a, b) => a.distance - b.distance)
-    .slice(0, CANDIDATES)
+    .slice(0, CANDIDATES_PER_LIST)
     .map((r) => Number(r.chunk_id));
 }
 
@@ -76,7 +76,7 @@ export function ftsIds(db: DocsDb, terms: string[], sources: string[]): number[]
         ORDER BY bm25(chunks_fts, 10.0, 1.0, 0.0)
         LIMIT @k`,
     )
-    .all({ match, k: CANDIDATES, ...sourceParams(sources) })
+    .all({ match, k: CANDIDATES_PER_LIST, ...sourceParams(sources) })
     .map((r) => r.rowid);
 }
 
@@ -92,62 +92,103 @@ export function ownerOf(nameLc: string): string {
   return nameLc.replace(new RegExp(`${MEMBER_SEP.source}[^#:.]+$`), '');
 }
 
-// Candidates, in priority order:
-//   1. qualified terms that name a symbol exactly (`Tween.tween_property`)
-//   2. members of a class named in the query ("label" + "text" -> Label.text)
-//   3. those classes themselves
-//   4. bare identifier-like terms, as a symbol or member name
-export function symbolIds(db: DocsDb, terms: string[], sources: string[]): number[] {
-  const words = terms.map((t) => t.toLowerCase());
-  // A one-word query is an API name even when it's a plain word ("pluck").
-  const idents = (terms.length === 1 ? terms : terms.filter(looksLikeIdentifier)).map((t) => t.toLowerCase());
-  const params = sourceParams(sources);
+// The symbol-table lookups that symbol search uses, limited to `sources`.
+// Names are matched lowercased.
+type SymbolRow = { chunk_id: number; name_lc: string };
+
+function symbolLookups(db: DocsDb, sources: string[]) {
   const filter = sourceFilter('source', sources);
+  const params = sourceParams(sources);
+  const lookup = (sql: string) => {
+    const stmt = db.prepare<object, SymbolRow>(`${sql} AND chunk_id IS NOT NULL${filter}`);
+    return (name: string) => stmt.all({ name, ...params });
+  };
+  return {
+    // Full name: `characterbody2d.move_and_slide`, or a class like `label`.
+    byName: lookup(`SELECT chunk_id, name_lc FROM symbols WHERE name_lc = @name`),
+    // Member part only: `move_and_slide` matches it on every class that has one.
+    byMember: lookup(`SELECT chunk_id, name_lc FROM symbols WHERE member_lc = @name`),
+    // Classes by full name, last `::` segment (`querymethods` ->
+    // `activerecord::querymethods`), or Godot's 2D/3D pair (`camera` ->
+    // Camera2D, Camera3D).
+    classes: lookup(
+      `SELECT chunk_id, name_lc FROM symbols
+        WHERE kind = 'class'
+          AND (name_lc IN (@name, @name || '2d', @name || '3d') OR name_lc LIKE '%::' || @name)`,
+    ),
+  };
+}
+type SymbolLookups = ReturnType<typeof symbolLookups>;
 
-  const byName = db.prepare<object, { chunk_id: number }>(
-    `SELECT chunk_id FROM symbols WHERE name_lc = @name AND chunk_id IS NOT NULL${filter}`,
-  );
-  const byMember = db.prepare<object, { chunk_id: number; name_lc: string }>(
-    `SELECT chunk_id, name_lc FROM symbols WHERE member_lc = @name AND chunk_id IS NOT NULL${filter}`,
-  );
-  // A class matches by full name, last `::` segment, or Godot's 2D/3D pair
-  // ("camera" -> Camera2D, Camera3D).
-  const classes = db.prepare<object, { chunk_id: number; name_lc: string }>(
-    `SELECT chunk_id, name_lc FROM symbols
-      WHERE kind = 'class'
-        AND (name_lc IN (@name, @name || '2d', @name || '3d') OR name_lc LIKE '%::' || @name)
-        AND chunk_id IS NOT NULL${filter}
-      LIMIT 10`,
-  );
+// A common member name (`get_name`, `to_s`) exists on hundreds of classes;
+// keep only the first few when it appears alone in a query.
+const MAX_MATCHES_PER_BARE_MEMBER = 20;
+const MAX_CLASSES_PER_WORD = 10;
 
-  const ids: number[] = [];
+// Symbol search: chunks that document API names mentioned in the query, best
+// first. The four stages, in priority order:
+//   1. qualified names that match a symbol exactly  `Tween.tween_property`
+//   2. members of a class named in the query        "label text" -> Label.text
+//   3. those classes themselves                      "label text" -> Label
+//   4. identifiers as full or member names           `move_and_slide` -> every class's
+export function symbolIds(db: DocsDb, terms: string[], sources: string[]): number[] {
+  const find = symbolLookups(db, sources);
+  const words = [...new Set(terms.map((t) => t.toLowerCase()))];
+  // A one-word query is an API name even when it's a plain word ("pluck").
+  const identifiers = (terms.length === 1 ? terms : terms.filter(looksLikeIdentifier)).map((t) => t.toLowerCase());
+  const classesByWord = classesNamedBy(find, words);
 
-  for (const t of idents.filter((t) => MEMBER_SEP.test(t))) {
-    ids.push(...byName.all({ name: t, ...params }).map((r) => r.chunk_id));
+  const rows = [
+    ...exactQualifiedNames(find, identifiers),
+    ...membersOfNamedClasses(find, words, classesByWord),
+    ...[...classesByWord.values()].flat(),
+    ...bareNames(find, identifiers),
+  ];
+  return [...new Set(rows.map((r) => r.chunk_id))].slice(0, CANDIDATES_PER_LIST);
+}
+
+// Stage 1. Only terms with a separator: `Node.queue_free`, `Array#map`.
+function exactQualifiedNames(find: SymbolLookups, identifiers: string[]): SymbolRow[] {
+  return identifiers.filter((t) => MEMBER_SEP.test(t)).flatMap((t) => find.byName(t));
+}
+
+// Which query words name a class, and the classes each one names. Any word
+// counts here, not just identifier-like ones: people write "label", not "Label".
+function classesNamedBy(find: SymbolLookups, words: string[]): Map<string, SymbolRow[]> {
+  const byWord = new Map<string, SymbolRow[]>();
+  for (const word of words) {
+    const classes = find.classes(word).slice(0, MAX_CLASSES_PER_WORD);
+    if (classes.length > 0) byWord.set(word, classes);
   }
+  return byWord;
+}
 
-  const classHits = new Map<string, Array<{ chunk_id: number; name_lc: string }>>();
-  for (const w of new Set(words)) {
-    const hits = classes.all({ name: w, ...params });
-    if (hits.length > 0) classHits.set(w, hits);
-  }
-  for (const [cls, hits] of classHits) {
-    const owners = new Set(hits.map((h) => h.name_lc));
-    for (const w of new Set(words)) {
-      if (w === cls) continue;
-      for (const m of byMember.all({ name: w, ...params })) {
-        if (owners.has(ownerOf(m.name_lc))) ids.push(m.chunk_id);
-      }
+// Stage 2. For each class a word named, the other words that are members of
+// that class: "label" names Label, and Label.text has member `text`.
+function membersOfNamedClasses(
+  find: SymbolLookups,
+  words: string[],
+  classesByWord: Map<string, SymbolRow[]>,
+): SymbolRow[] {
+  const found: SymbolRow[] = [];
+  for (const [classWord, classes] of classesByWord) {
+    const classNames = new Set(classes.map((c) => c.name_lc));
+    for (const word of words) {
+      if (word === classWord) continue;
+      found.push(...find.byMember(word).filter((m) => classNames.has(ownerOf(m.name_lc))));
     }
   }
-  for (const hits of classHits.values()) ids.push(...hits.map((h) => h.chunk_id));
+  return found;
+}
 
-  const bare = new Set(idents.flatMap((t) => t.split(/[.#:]+/)).filter((t) => t.length > 1));
-  for (const name of bare) {
-    ids.push(...byName.all({ name, ...params }).map((r) => r.chunk_id));
-    ids.push(...byMember.all({ name, ...params }).slice(0, 20).map((r) => r.chunk_id));
-  }
-  return [...new Set(ids)].slice(0, CANDIDATES);
+// Stage 4. Each identifier, and each part of a qualified one
+// (`Node.queue_free` -> `node`, `queue_free`), as a full name or a member name.
+function bareNames(find: SymbolLookups, identifiers: string[]): SymbolRow[] {
+  const parts = new Set(identifiers.flatMap((t) => t.split(/[.#:]+/)).filter((t) => t.length > 1));
+  return [...parts].flatMap((name) => [
+    ...find.byName(name),
+    ...find.byMember(name).slice(0, MAX_MATCHES_PER_BARE_MEMBER),
+  ]);
 }
 
 // Reciprocal rank fusion: each list adds 1 / (RRF_K + rank) to an id's score.
@@ -167,17 +208,44 @@ export async function searchDocs(
   query: string,
   { k = 5, sources = [] as string[], mode = 'hybrid' as SearchMode } = {},
 ): Promise<SearchResult[]> {
+  // 1. Each method ranks its own candidates.
+  const lists = await candidateLists(db, embed, query, { sources, mode });
+  // 2. Merge the rankings into one score per chunk.
+  const scores = fuse(Object.values(lists));
+  // 3. Best first, at most MAX_PER_PAGE from any page, until there are k.
+  return topResults(db, scores, k);
+}
+
+// Chunk ids from each search method, best first. `mode` leaves some out.
+export interface CandidateLists {
+  vector?: number[];
+  fts?: number[];
+  symbol?: number[];
+}
+
+export async function candidateLists(
+  db: DocsDb,
+  embed: Embed,
+  query: string,
+  { sources = [] as string[], mode = 'hybrid' as SearchMode } = {},
+): Promise<CandidateLists> {
   const terms = queryTerms(query);
-  const lists: number[][] = [];
+  const lists: CandidateLists = {};
   if (mode !== 'fts') {
+    // Queries get an instruction prefix; stored documents were embedded without one.
     const [vector] = await embed([`${QUERY_PREFIX}${query}`]);
-    lists.push(vectorIds(db, vector, sources));
+    lists.vector = vectorIds(db, vector, sources);
   }
   if (mode !== 'vector') {
-    lists.push(ftsIds(db, terms, sources));
-    lists.push(symbolIds(db, terms, sources));
+    lists.fts = ftsIds(db, terms, sources);
+    lists.symbol = symbolIds(db, terms, sources);
   }
+  return lists;
+}
 
+// Highest scores first, skipping chunks from a page that already has
+// MAX_PER_PAGE results, so one huge class page can't fill every slot.
+export function topResults(db: DocsDb, scores: Map<number, number>, k: number): SearchResult[] {
   const chunk = db.prepare<[number], Omit<SearchResult, 'score'> & { pageId: number }>(
     `SELECT c.id AS chunkId, c.page_id AS pageId, c.source, p.path, p.title, c.heading, c.anchor, c.text
        FROM chunks c JOIN pages p ON p.id = c.page_id
@@ -185,13 +253,13 @@ export async function searchDocs(
   );
 
   const results: SearchResult[] = [];
-  const perPage = new Map<number, number>();
-  for (const [id, score] of [...fuse(lists)].sort((a, b) => b[1] - a[1])) {
-    const { pageId, ...r } = chunk.get(id)!;
-    const n = perPage.get(pageId) ?? 0;
+  const resultsPerPage = new Map<number, number>();
+  for (const [id, score] of [...scores].sort((a, b) => b[1] - a[1])) {
+    const { pageId, ...result } = chunk.get(id)!;
+    const n = resultsPerPage.get(pageId) ?? 0;
     if (n >= MAX_PER_PAGE) continue;
-    perPage.set(pageId, n + 1);
-    results.push({ ...r, score });
+    resultsPerPage.set(pageId, n + 1);
+    results.push({ ...result, score });
     if (results.length === k) break;
   }
   return results;

@@ -11,7 +11,8 @@
     "test": "node --import tsx --test 'src/**/*.test.ts'",
     "ingest": "tsx src/docs/ingest/ingest.ts",
     "fetch-docs": "tsx src/docs/ingest/fetch-devdocs.ts",
-    "eval": "tsx src/docs/eval/eval.ts"
+    "eval": "tsx src/docs/eval/eval.ts",
+    "explain": "tsx src/docs/eval/explain.ts"
   },
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.29.0",

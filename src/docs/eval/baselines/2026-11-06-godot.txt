@@ -1,0 +1,90 @@
+# yarn eval godot (k=5, all modes), 2026-11-06, on 07be6bc plus the readability refactor and the new eval questions.
+# Taken before fixing the known issues; compare later runs against this.
+
+
+== vector
+  concept       hit@5 11/13 (85%)  MRR 0.76
+  api           hit@5 10/10 (100%) MRR 1.00
+  api-bare      hit@5 4/4 (100%)   MRR 0.88
+  api-implicit  hit@5 3/4 (75%)    MRR 0.75
+  api-howto     hit@5 10/10 (100%) MRR 0.83
+  paraphrase    hit@5 4/7 (57%)    MRR 0.39
+  api-question  hit@5 3/3 (100%)   MRR 1.00
+  all           hit@5 45/51 (88%)  MRR 0.79
+  noise: 3/255 (1%) of results from big settings/server classes
+  markup: 5/255 (2%) of results with RST markup in their heading
+  misses:
+  [concept] How do signals work and how do I connect one in code?
+      got: classes/class_signal.rst, tutorials/scripting/gdscript/gdscript_basics.rst, tutorials/scripting/cpp/gdextension_cpp_example.rst
+  [concept] How do I detect when the player enters an area?
+      got: classes/class_area2d.rst, classes/class_area3d.rst, classes/class_physicsserver3d.rst
+  [api-implicit] How do I wait two seconds inside a function before continuing?
+      got: classes/class_os.rst, classes/class_methodtweener.rst, classes/class_propertytweener.rst, classes/class_tween.rst
+  [paraphrase] How do I freeze everything while a menu is open?
+      got: classes/class_nativemenu.rst, classes/class_menubar.rst, classes/class_popupmenu.rst, classes/class_projectsettings.rst
+  [paraphrase] How can my script do something on every frame?
+      got: classes/class_scriptlanguageextension.rst, classes/class_sprite3d.rst, classes/class_engine.rst, classes/class_sprite2d.rst, classes/class_animatedsprite3d.rst
+  [paraphrase] How do I make the music quieter than the sound effects?
+      got: classes/class_theme.rst, getting_started/first_2d_game/07.finishing-up.rst, classes/class_audiostreamplayer3d.rst, classes/class_control.rst, classes/class_themedb.rst
+
+== fts
+  concept       hit@5 7/13 (54%)   MRR 0.41
+  api           hit@5 10/10 (100%) MRR 1.00
+  api-bare      hit@5 4/4 (100%)   MRR 1.00
+  api-implicit  hit@5 4/4 (100%)   MRR 0.88
+  api-howto     hit@5 10/10 (100%) MRR 0.73
+  paraphrase    hit@5 0/7 (0%)     MRR 0.00
+  api-question  hit@5 3/3 (100%)   MRR 0.75
+  all           hit@5 38/51 (75%)  MRR 0.64
+  noise: 11/253 (4%) of results from big settings/server classes
+  markup: 8/253 (3%) of results with RST markup in their heading
+  misses:
+  [concept] How do I make a Node2D follow the mouse?
+      got: classes/class_scrollcontainer.rst, classes/class_node2d.rst, classes/class_displayserver.rst, classes/class_input.rst
+  [concept] What is the difference between _process and _physics_process?
+      got: classes/class_mainloop.rst, classes/class_animationnode.rst, classes/class_node.rst, classes/class_audioeffectinstance.rst
+  [concept] How do I switch to a different scene?
+      got: classes/class_editorsettings.rst, classes/class_editordock.rst, tutorials/3d/high_dynamic_range.rst, tutorials/2d/using_tilesets.rst, tutorials/navigation/navigation_different_actor_locomotion.rst
+  [concept] How do I add type hints to GDScript variables and functions?
+      got: classes/class_editorsettings.rst, classes/class_gdscript.rst, tutorials/scripting/gdscript/gdscript_styleguide.rst, tutorials/scripting/gdscript/gdscript_basics.rst
+  [concept] How do I cast a ray to check what is in front of the player?
+      got: classes/class_physicsserver2d.rst, classes/class_rigidbody2d.rst, tutorials/physics/using_jolt_physics.rst, classes/class_projectsettings.rst, classes/class_springarm3d.rst
+  [concept] How do I set up input actions like jump in the input map?
+      got: classes/class_input.rst, getting_started/first_3d_game/02.player_input.rst, tutorials/scripting/gdscript/gdscript_exports.rst, tutorials/xr/xr_action_map.rst
+  [paraphrase] How do I make my character leap?
+      got: getting_started/first_3d_game/09.adding_animations.rst, classes/class_string.rst, classes/class_stringname.rst, tutorials/physics/kinematic_character_2d.rst
+  [paraphrase] How do I freeze everything while a menu is open?
+      got: classes/class_filedialog.rst, classes/class_zippacker.rst, classes/class_nativemenu.rst, classes/class_displayserver.rst
+  [paraphrase] How do I keep data around when the level changes?
+      got: classes/class_audioeffectspectrumanalyzer.rst, classes/class_geometryinstance3d.rst, classes/class_portablecompressedtexture2d.rst, classes/class_audioeffectcapture.rst, classes/class_renderingserver.rst
+  [paraphrase] How can my script do something on every frame?
+      got: tutorials/best_practices/godot_notifications.rst, classes/class_script.rst, tutorials/scripting/creating_script_templates.rst, getting_started/step_by_step/scripting_first_script.rst, classes/class_scenetree.rst
+  [paraphrase] How do I find out what the mouse is pointing at in 3D?
+      got: classes/class_projectsettings.rst, tutorials/math/vector_math.rst, classes/class_control.rst, classes/class_editorsettings.rst
+  [paraphrase] How do I make my game playable in other languages?
+      got: getting_started/first_3d_game/01.game_setup.rst, getting_started/step_by_step/scripting_languages.rst, tutorials/scripting/other_languages.rst, tutorials/performance/cpu_optimization.rst
+  [paraphrase] How do I make the music quieter than the sound effects?
+      got: getting_started/first_2d_game/07.finishing-up.rst, classes/class_resourceimportermp3.rst, classes/class_resourceimporteroggvorbis.rst, tutorials/audio/sync_with_audio.rst
+
+== hybrid
+  concept       hit@5 12/13 (92%)  MRR 0.72
+  api           hit@5 10/10 (100%) MRR 1.00
+  api-bare      hit@5 4/4 (100%)   MRR 1.00
+  api-implicit  hit@5 4/4 (100%)   MRR 1.00
+  api-howto     hit@5 10/10 (100%) MRR 0.88
+  paraphrase    hit@5 3/7 (43%)    MRR 0.09
+  api-question  hit@5 3/3 (100%)   MRR 1.00
+  all           hit@5 46/51 (90%)  MRR 0.78
+  noise: 11/255 (4%) of results from big settings/server classes
+  markup: 10/255 (4%) of results with RST markup in their heading
+  misses:
+  [concept] What is the difference between _process and _physics_process?
+      got: tutorials/best_practices/godot_notifications.rst, classes/class_node.rst, tutorials/physics/physics_introduction.rst
+  [paraphrase] How do I freeze everything while a menu is open?
+      got: classes/class_nativemenu.rst, classes/class_popupmenu.rst, classes/class_displayserver.rst, classes/class_menubar.rst
+  [paraphrase] How do I keep data around when the level changes?
+      got: classes/class_renderingserver.rst, classes/class_editorexportplatformandroid.rst, classes/class_gltfstate.rst, tutorials/io/saving_games.rst, classes/class_audioeffectspectrumanalyzer.rst
+  [paraphrase] How do I find out what the mouse is pointing at in 3D?
+      got: classes/class_viewport.rst, classes/class_camera3d.rst, classes/class_projectsettings.rst, classes/class_raycast3d.rst
+  [paraphrase] How do I make the music quieter than the sound effects?
+      got: getting_started/first_2d_game/07.finishing-up.rst, classes/class_audioeffectamplify.rst, tutorials/audio/sync_with_audio.rst, tutorials/assets_pipeline/importing_audio_samples.rst, classes/class_audiostreamplayer3d.rst

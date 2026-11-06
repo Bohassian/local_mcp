@@ -1,5 +1,5 @@
 {
-  "description": "Rails 7.1 / Ruby 3.2 retrieval eval (searches limited to rails~7.1 + ruby~3.2, as a project's AGENTS.md would). Same kinds as godot.json.",
+  "description": "Rails 7.1 / Ruby 3.2 retrieval eval (searches limited to rails~7.1 + ruby~3.2, as a project's AGENTS.md would). Same kinds as godot.json. Added 2026-11-06 to track known weak spots (see docs/HOW_IT_WORKS.md#when-search-gets-it-wrong): paraphrase, api-question (as in godot.json), api-stopword (API names that are also stopwords, e.g. where), api-predicate (Ruby names ending in '?', which query parsing must keep intact).",
   "queries": [
     {
       "kind": "concept",
@@ -275,6 +275,156 @@
       "query": "How do I check whether a string begins with a prefix?",
       "pages": [
         "string"
+      ],
+      "sources": [
+        "rails~7.1",
+        "ruby~3.2"
+      ]
+    },
+    {
+      "kind": "paraphrase",
+      "query": "How do I undo the last database change I applied?",
+      "pages": [
+        "guides/active_record_migrations"
+      ],
+      "sources": [
+        "rails~7.1",
+        "ruby~3.2"
+      ]
+    },
+    {
+      "kind": "paraphrase",
+      "query": "How do I remember who is logged in across requests?",
+      "pages": [
+        "guides/action_controller_overview",
+        "guides/security"
+      ],
+      "sources": [
+        "rails~7.1",
+        "ruby~3.2"
+      ]
+    },
+    {
+      "kind": "api-stopword",
+      "query": "where",
+      "pages": [
+        "activerecord/querymethods"
+      ],
+      "sources": [
+        "rails~7.1",
+        "ruby~3.2"
+      ]
+    },
+    {
+      "kind": "api-stopword",
+      "query": "or",
+      "pages": [
+        "activerecord/querymethods"
+      ],
+      "sources": [
+        "rails~7.1",
+        "ruby~3.2"
+      ]
+    },
+    {
+      "kind": "api-stopword",
+      "query": "and",
+      "pages": [
+        "activerecord/querymethods"
+      ],
+      "sources": [
+        "rails~7.1",
+        "ruby~3.2"
+      ]
+    },
+    {
+      "kind": "api-stopword",
+      "query": "with",
+      "pages": [
+        "activerecord/querymethods",
+        "object"
+      ],
+      "sources": [
+        "rails~7.1",
+        "ruby~3.2"
+      ]
+    },
+    {
+      "kind": "api-stopword",
+      "query": "How do I use or to combine two scopes",
+      "pages": [
+        "activerecord/querymethods"
+      ],
+      "sources": [
+        "rails~7.1",
+        "ruby~3.2"
+      ]
+    },
+    {
+      "kind": "api-question",
+      "query": "How do I use find_or_create_by?",
+      "pages": [
+        "activerecord/relation"
+      ],
+      "sources": [
+        "rails~7.1",
+        "ruby~3.2"
+      ]
+    },
+    {
+      "kind": "api-question",
+      "query": "When should I use includes instead of joins?",
+      "pages": [
+        "activerecord/querymethods"
+      ],
+      "sources": [
+        "rails~7.1",
+        "ruby~3.2"
+      ]
+    },
+    {
+      "kind": "api-predicate",
+      "query": "Array#empty?",
+      "pages": [
+        "array"
+      ],
+      "sources": [
+        "rails~7.1",
+        "ruby~3.2"
+      ]
+    },
+    {
+      "kind": "api-predicate",
+      "query": "Hash key?",
+      "pages": [
+        "hash"
+      ],
+      "sources": [
+        "rails~7.1",
+        "ruby~3.2"
+      ]
+    },
+    {
+      "kind": "api-predicate",
+      "query": "String start_with?",
+      "pages": [
+        "string"
+      ],
+      "sources": [
+        "rails~7.1",
+        "ruby~3.2"
+      ]
+    },
+    {
+      "kind": "api-predicate",
+      "query": "include?",
+      "pages": [
+        "array",
+        "enumerable",
+        "string",
+        "hash",
+        "range",
+        "module"
       ],
       "sources": [
         "rails~7.1",

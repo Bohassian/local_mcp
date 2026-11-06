@@ -82,6 +82,12 @@ yarn eval                        # godot set, k=5, every search mode
 yarn eval rails 5 hybrid
 ```
 
+To see why one query returns what it does (each search method's ranking, the fused scores, the final results):
+
+```bash
+yarn explain "move_and_slide floor detection" --sources godot-manual,godot-api
+```
+
 The eval reports hit@k and MRR per question kind. Run it before and after changing readers, chunking or search.
 
 ## Adding an endpoint

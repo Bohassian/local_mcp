@@ -36,6 +36,10 @@ const NOISE_PAGES = new Set([
   'classes/class_textserver.rst',
 ]);
 
+// RST markup left in a result's heading, e.g. ":ref:`bool<class_bool>`",
+// "``repeat_times``" or "\\*_input". Readers should strip it.
+const HEADING_MARKUP = /:[a-z]+:`|``|\\[*_`|]/;
+
 const db = openStore();
 const embed = ollamaEmbed(EMBED_MODEL);
 
@@ -49,10 +53,12 @@ for (const mode of modes) {
   const misses: string[] = [];
   let returned = 0;
   let noise = 0;
+  let markup = 0;
 
   for (const q of queries) {
     const results = await searchDocs(db, embed, q.query, { k, mode, sources: q.sources ?? defaultSources });
     const got = results.map((r) => r.path);
+    markup += results.filter((r) => HEADING_MARKUP.test(r.heading ?? '')).length;
     const rank = got.findIndex((p) => q.pages.includes(p));
 
     const tally = byKind.get(q.kind) ?? { hits: 0, rr: 0, total: 0 };
@@ -76,6 +82,7 @@ for (const mode of modes) {
   for (const [kind, t] of byKind) console.log(row(kind, t));
   console.log(row('all', all));
   console.log(`  noise: ${pct(noise, returned)} of results from big settings/server classes`);
+  console.log(`  markup: ${pct(markup, returned)} of results with RST markup in their heading`);
   if (misses.length) console.log(`  misses:\n${misses.join('\n')}`);
 }
 

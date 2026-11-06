@@ -3,6 +3,7 @@
 This guide is for engineers who are comfortable with code but new to search,
 embeddings and MCP. It explains the ideas the code depends on, then follows a
 real question through the system with real output from `data/docs.db`.
+`yarn explain "<question>"` prints the same breakdown for any question you like.
 
 The [README](../README.md) covers how to run things. This covers why the code
 looks the way it does.
@@ -185,15 +186,18 @@ documents it.
 **Here.** The `symbols` table ([store.ts:76](../src/docs/store.ts#L76)) stores
 the full name, the member part alone (`move_and_slide`), and a kind. They power
 two things: the `lookup_symbol` tool, and the third search list,
-[`symbolIds`](../src/docs/search.ts#L100). That list looks for API names in
-the query in four ways, in priority order:
+[`symbolIds`](../src/docs/search.ts#L134). That list looks for API names in
+the query in four stages, in priority order, each its own function:
 
-| Query | Matches | Why |
-|---|---|---|
-| `Tween.tween_property` | that exact symbol | Qualified name |
-| `label text` | `Label.text` | A word names a class, another names one of its members |
-| `camera` | `Camera2D`, `Camera3D` | The class itself; Godot's 2D/3D pairs count |
-| `move_and_slide` | every class's `move_and_slide` | A bare member name |
+| Stage | Query | Matches | Function |
+|---|---|---|---|
+| 1. Qualified name | `Tween.tween_property` | that exact symbol | [`exactQualifiedNames`](../src/docs/search.ts#L151) |
+| 2. Class + member in plain words | `label text` | `Label.text` | [`membersOfNamedClasses`](../src/docs/search.ts#L168) |
+| 3. The class itself | `camera` | `Camera2D`, `Camera3D` | [`classesNamedBy`](../src/docs/search.ts#L157) |
+| 4. Bare name | `move_and_slide` | every class's `move_and_slide` | [`bareNames`](../src/docs/search.ts#L186) |
+
+The three SQL lookups they share (by full name, by member name, by class)
+are in [`symbolLookups`](../src/docs/search.ts#L99).
 
 Plain words only count as API names in limited cases. Otherwise "play" or
 "where" would match hundreds of members
@@ -210,8 +214,9 @@ Plain words only count as API names in limited cases. Otherwise "play" or
 | Symbol | API names written the way the docs write them | Anything else |
 
 So we run all three and merge. The problem is that their scores aren't
-comparable: a vector distance of 0.92, a BM25 score (FTS5 reports them as negative numbers) and a symbol
-match (no score at all) aren't on any common scale. **Reciprocal rank fusion
+comparable: a vector distance of 0.92, a BM25 score (FTS5 reports these as
+negative numbers) and a symbol match (no score at all) aren't on any common
+scale. **Reciprocal rank fusion
 (RRF)** sidesteps this by ignoring scores and using only *positions*. An item
 at rank *r* in a list earns `1 / (60 + r)` from that list, and its total is the
 sum across lists:
@@ -227,10 +232,11 @@ The constant 60 flattens the curve, so being 1st instead of 10th matters only
 a little. Showing up in *several* lists matters a lot. RRF bets that when
 independent methods agree, they're probably right.
 
-**Here.** [`fuse`](../src/docs/search.ts#L156) is the whole algorithm in five
-lines. [`searchDocs`](../src/docs/search.ts#L164) runs the lists, fuses, then
-keeps at most 2 chunks per page (`MAX_PER_PAGE`), so one giant class page
-can't fill every slot.
+**Here.** [`fuse`](../src/docs/search.ts#L197) is the whole algorithm in five
+lines. [`searchDocs`](../src/docs/search.ts#L205) is three steps:
+[`candidateLists`](../src/docs/search.ts#L226) runs the methods, `fuse` merges them, and
+[`topResults`](../src/docs/search.ts#L248) keeps the best, at most 2 per page
+(`MAX_PER_PAGE`), so one giant class page can't fill every slot.
 
 **Read more.** [Cormack, Clarke & Büttcher, *Reciprocal Rank Fusion* (SIGIR 2009)](https://plg.uwaterloo.ca/~gvcormac/cormacksigir09-rrf.pdf)
 (two pages and readable; the source of the 60)
@@ -296,8 +302,12 @@ as plain lists of ids.
 ## The search path
 
 Here is the example query from the `search_docs` tool description, run
-against the real database and limited to the two Godot sources. You can
-reproduce it; see [Things to try](#things-to-try).
+against the real database and limited to the two Godot sources. To see this
+breakdown for yourself, or for any other query:
+
+```bash
+yarn explain "move_and_slide floor detection" --sources godot-manual,godot-api
+```
 
 **Query:** `move_and_slide floor detection`
 
@@ -378,7 +388,16 @@ character (2D) › Moving the kinematic character" is 10th by vector and 5th by
 keyword: 1/70 + 1/65 = 0.0297. Two middling votes beat one strong one, and
 **the right answer drops out of the top 5**.
 
-Ways one could respond, each with costs: add "make" to the stopwords, weight
+`yarn explain "how do I make my character leap" --sources godot-manual,godot-api`
+shows all of this.
+
+A second known weak spot: stopwords. `queryTerms` drops common words like
+"where" and "when" before anything else, which is right for questions but
+wrong for Rails' `where` method. `yarn explain "where" --sources rails~8.1`
+finds `ActiveRecord::QueryMethods#where` only through vector search, at #5,
+while a non-stopword like `pluck` goes straight to the method.
+
+Ways one could respond to the first problem, each with costs: add "make" to the stopwords, weight
 the vector list higher for plain-English queries, or drop keyword search when
 its terms are all common words. Don't tune by intuition from one example.
 Measure:
@@ -398,6 +417,14 @@ with known correct pages, and reports:
 
 Comparing `vector`, `fts` and `hybrid` on the same questions shows what each
 method contributes. Change one thing, re-run, and compare.
+
+Some question kinds exist to track known weak spots: `paraphrase` (the
+"leap" problem above), `api-stopword` (`where`), `api-question` (an API name
+followed by `?`), and `api-predicate` (Ruby names that really end in `?`,
+which a fix must not break). The `markup` line counts results whose heading
+still has RST markup. Saved runs in
+[src/docs/eval/baselines/](../src/docs/eval/baselines/) record the numbers
+before any fixes. To compare, save a new run next to them and diff the two.
 
 ---
 
@@ -450,6 +477,11 @@ The best way to build intuition is to poke at it.
 
 - **Run the tests**, then read them as examples: `yarn test`. Change a
   constant (say `RRF_K` or the chunk size) and see which tests notice.
+- **Explain a search**: `yarn explain "<query>"` prints each method's
+  ranking, the fused scores and which list each one came from, and the final
+  results ([explain.ts](../src/docs/eval/explain.ts)). Options:
+  `--sources a,b`, `--top 15`, `--mode vector|fts|hybrid`. Try a question, an
+  API name, and a question with an API name in it.
 - **Try queries by hand** with the MCP Inspector:
   `npx @modelcontextprotocol/inspector@0.21.2 http://localhost:3939/docs`.
   Compare a "how do I" question, an exact API name and a misspelling.
