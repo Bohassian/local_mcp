@@ -139,6 +139,15 @@ Versions only move deliberately: npm packages through `package-lock.json` (insta
 - **Pass script arguments after `--`**, e.g. `npm run ingest -- --all`. Without it, npm takes `--all` as its own option.
 - **Dependabot** (`.github/dependabot.yml`) opens weekly PRs for npm packages, the Node base image, the Ollama image and the CI actions, with the same 14-day cooldown. npm minor and patch bumps come grouped as one PR. Majors come one PR each, except TypeScript and `@types/node`, which are bumped by hand.
 - **Security-update PRs skip the cooldown**: Dependabot opens them as soon as a fix is out. Leave one unmerged until the fix is 14 days old, unless the vulnerability affects how this server runs.
+- **Once a month, refresh indirect dependencies by hand.** Dependabot only bumps packages listed in `package.json`. Indirect ones, such as those under the MCP SDK, otherwise move only when a security advisory forces it. On a branch:
+
+  ```bash
+  npm update                       # within package.json ranges; respects min-release-age and ignore-scripts
+  git diff package-lock.json       # review what moved
+  npm audit && npm run typecheck && npm test
+  ```
+
+  Then open a PR so CI runs. `npm update` can also move a package *back* to an older version if the locked one is younger than 14 days. That's the age gate working, not a mistake.
 - **CI** (`.github/workflows/ci.yml`) runs on every PR: `npm ci`, `npm audit --audit-level=high`, typecheck, tests, the Docker build, and a check that the native modules load inside the image. It can't run the server or the evals.
 - **Before merging a bump**, run `npm run eval` for all three sets (`godot`, `rails`, `holdout`) and compare against the numbers from before. For a change made by hand, also run what CI runs: `npm audit`, `npm run typecheck`, `npm test`, `docker compose build mcp`.
 - **Bumping Ollama** can change the vectors the embedding model returns, so they no longer match the ones in `docs.db`. Run `npm run embed-drift` before and after. Identical vectors give 1.00000. A median around 0.999 with an unchanged eval needs nothing. Anything clearly lower means `npm run ingest -- --all`. Changing `EMBED_MODEL` always needs a re-ingest (see `src/docs/store.ts`).
