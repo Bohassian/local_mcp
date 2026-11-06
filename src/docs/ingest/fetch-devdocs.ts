@@ -5,7 +5,7 @@ import { config } from '../../config.js';
 // Downloads DevDocs bundles into data/devdocs/<slug>/ for `format: devdocs`
 // sources. The only networked docs step; ingest reads the local files.
 //
-//   yarn fetch-docs rails~7.1 ruby~3.2
+//   npm run fetch-docs -- rails~7.1 ruby~3.2
 //
 // Re-downloads a bundle only when its mtime in the DevDocs catalog changed.
 
@@ -18,7 +18,7 @@ interface CatalogEntry {
 
 const slugs = process.argv.slice(2);
 if (slugs.length === 0) {
-  console.error('Usage: yarn fetch-docs <slug>...   (e.g. rails~7.1 ruby~3.2)');
+  console.error('Usage: npm run fetch-docs -- <slug>...   (e.g. rails~7.1 ruby~3.2)');
   process.exit(1);
 }
 

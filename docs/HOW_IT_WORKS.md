@@ -3,7 +3,7 @@
 This guide is for engineers who are comfortable with code but new to search,
 embeddings and MCP. It explains the ideas the code depends on, then follows a
 real question through the system with real output from `data/docs.db`.
-`yarn explain "<question>"` prints the same breakdown for any question you like.
+`npm run explain -- "<question>"` prints the same breakdown for any question you like.
 
 The [README](../README.md) covers how to run things. This covers why the code
 looks the way it does.
@@ -34,7 +34,7 @@ comes from documents on your machine, not the model's memory.
 There are two halves, run at different times:
 
 ```
-INGEST (yarn ingest, on the host, occasionally)
+INGEST (npm run ingest, on the host, occasionally)
 
   docs on disk ──► reader ──► sections ──► chunker ──► chunks ──► embedding model ──► vectors
   (.rst, .md,       per                                  │            (Ollama)            │
@@ -245,7 +245,7 @@ lines. [`searchDocs`](../src/docs/search.ts#L205) is three steps:
 
 ## The ingest path
 
-`yarn ingest godot-api` runs [ingest.ts](../src/docs/ingest/ingest.ts) on the
+`npm run ingest -- godot-api` runs [ingest.ts](../src/docs/ingest/ingest.ts) on the
 host. For one source:
 
 1. **Find the source's config** in [sources.json](../src/docs/sources.json):
@@ -306,7 +306,7 @@ against the real database and limited to the two Godot sources. To see this
 breakdown for yourself, or for any other query:
 
 ```bash
-yarn explain "move_and_slide floor detection" --sources godot-manual,godot-api
+npm run explain -- "move_and_slide floor detection" --sources godot-manual,godot-api
 ```
 
 **Query:** `move_and_slide floor detection`
@@ -389,7 +389,7 @@ character (2D) › Moving the kinematic character" is 10th by vector and 5th by
 keyword: 1/70 + 1/65 = 0.0297. Two middling votes beat one strong one, and
 **the right answer drops out of the top 5**.
 
-`yarn explain "how do I make my character leap" --sources godot-manual,godot-api`
+`npm run explain -- "how do I make my character leap" --sources godot-manual,godot-api`
 shows all of this.
 
 This one is still open. Here's what was tried and why it didn't work. Each
@@ -416,8 +416,8 @@ docs.
 Don't tune by intuition from one example. Measure:
 
 ```bash
-yarn eval            # godot question set, top 5, each mode separately
-yarn eval rails 5 hybrid
+npm run eval         # godot question set, top 5, each mode separately
+npm run eval -- rails 5 hybrid
 ```
 
 [eval.ts](../src/docs/eval/eval.ts) runs a fixed set of questions
@@ -435,7 +435,7 @@ method contributes. Change one thing, re-run, and compare.
 scores best on these questions, you've partly fitted the questions.
 [holdout.json](../src/docs/eval/holdout.json) holds paraphrase questions that
 were written before any change was measured on them. Check a change there
-before believing it (`yarn eval holdout 5 hybrid`). The "every word" attempt
+before believing it (`npm run eval -- holdout 5 hybrid`). The "every word" attempt
 above looked like an improvement on the main sets and did nothing on the
 holdout.
 
@@ -505,9 +505,9 @@ and add it to the `endpoints` list in [server.ts](../src/server.ts).
 
 The best way to build intuition is to poke at it.
 
-- **Run the tests**, then read them as examples: `yarn test`. Change a
+- **Run the tests**, then read them as examples: `npm test`. Change a
   constant (say `RRF_K` or the chunk size) and see which tests notice.
-- **Explain a search**: `yarn explain "<query>"` prints each method's
+- **Explain a search**: `npm run explain -- "<query>"` prints each method's
   ranking, the fused scores and which list each one came from, and the final
   results ([explain.ts](../src/docs/eval/explain.ts)). Options:
   `--sources a,b`, `--top 15`, `--mode vector|fts|hybrid`. Try a question, an
@@ -515,7 +515,7 @@ The best way to build intuition is to poke at it.
 - **Try queries by hand** with the MCP Inspector:
   `npx @modelcontextprotocol/inspector@0.21.2 http://localhost:3939/docs`.
   Compare a "how do I" question, an exact API name and a misspelling.
-- **Compare search modes** with `yarn eval godot 5 vector`, `… fts` and
+- **Compare search modes** with `npm run eval -- godot 5 vector`, `… fts` and
   `… hybrid`, and read the misses each one lists.
 - **Look inside the database** with any SQLite client (read-only is fine):
   ```sql
@@ -525,7 +525,7 @@ The best way to build intuition is to poke at it.
   The `chunks_vec` table needs the sqlite-vec extension loaded. The others
   don't.
 - **Write a note** in `data/reference/` as markdown, run
-  `yarn ingest reference`, and search for it.
+  `npm run ingest -- reference`, and search for it.
 
 ---
 

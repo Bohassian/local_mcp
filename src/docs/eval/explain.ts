@@ -6,9 +6,9 @@ import { EMBED_MODEL, openStore } from '../store.js';
 // Shows the work behind one search: each method's ranking, how fusion scored
 // the leading chunks, and the final results. See docs/HOW_IT_WORKS.md.
 //
-//   yarn explain "move_and_slide floor detection"
-//   yarn explain "how do I make my character leap" --sources godot-manual,godot-api
-//   yarn explain "where" --sources rails~8.1 --top 15 --mode fts
+//   npm run explain -- "move_and_slide floor detection"
+//   npm run explain -- "how do I make my character leap" --sources godot-manual,godot-api
+//   npm run explain -- "where" --sources rails~8.1 --top 15 --mode fts
 
 const { positionals, values } = parseArgs({
   allowPositionals: true,
@@ -21,7 +21,7 @@ const { positionals, values } = parseArgs({
 });
 const query = positionals.join(' ').trim();
 if (!query) {
-  console.error('Usage: yarn explain "<query>" [--sources a,b] [--top 10] [--k 5] [--mode hybrid|vector|fts]');
+  console.error('Usage: npm run explain -- "<query>" [--sources a,b] [--top 10] [--k 5] [--mode hybrid|vector|fts]');
   process.exit(1);
 }
 const sources = values.sources ? values.sources.split(',').map((s) => s.trim()) : [];

@@ -1,0 +1,51 @@
+# Checks every PR (including Dependabot's) and every push to main. It can't run
+# the server, the evals or embed-drift: those need Ollama, the embedding model
+# and data/docs.db. Run them by hand (README, "Updating dependencies").
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      # Actions are pinned to commit SHAs: a moved or hijacked tag can't change
+      # what runs here. Dependabot updates the SHA and the comment together.
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version-file: .tool-versions
+
+      # Fails if package-lock.json doesn't match package.json. .npmrc keeps
+      # install scripts off here too.
+      - run: npm ci
+
+      - name: Audit (high and critical)
+        run: npm audit --audit-level=high
+
+      - run: npm run typecheck
+      - run: npm test
+
+      - name: Build image
+        run: docker build -t local-mcp:ci .
+
+      # The image has no compilers and dependencies install without scripts, so
+      # a native module that needed one would only fail when loaded. Load them.
+      - name: Smoke-test native modules in the image
+        run: >-
+          docker run --rm local-mcp:ci node -e "
+          const Database = require('better-sqlite3');
+          const db = new Database(':memory:');
+          require('sqlite-vec').load(db);
+          console.log(db.prepare('SELECT sqlite_version() AS sqlite, vec_version() AS vec').get());
+          "

@@ -2,7 +2,7 @@
 # .env.example). Keep the version in step with docker-compose.yml.
 services:
   ollama:
-    image: ollama/ollama:0.24.0-rocm
+    image: ollama/ollama:0.40.10-rocm
     devices:
       - /dev/kfd
       - /dev/dri

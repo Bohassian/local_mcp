@@ -1,0 +1,38 @@
+# Weekly update PRs. Every entry waits 14 days after a release (same rule as
+# min-release-age in .npmrc, which Dependabot doesn't read). Cooldown doesn't
+# apply to security-update PRs; see "Updating dependencies" in the README.
+version: 2
+updates:
+  - package-ecosystem: npm
+    directory: /
+    schedule:
+      interval: weekly
+    cooldown:
+      default-days: 14
+    groups:
+      # One PR for all minor and patch bumps. Majors arrive one PR each.
+      npm-minor-patch:
+        update-types: [minor, patch]
+    ignore:
+      # Majors to take deliberately, not from a weekly PR.
+      - dependency-name: typescript # 7 is the Go rewrite
+        update-types: [version-update:semver-major]
+      - dependency-name: "@types/node" # follows the Node major in .tool-versions
+        update-types: [version-update:semver-major]
+
+  # ollama/ollama in docker-compose.yml. Before merging, run `npm run
+  # embed-drift` and the evals (README, "Updating dependencies").
+  - package-ecosystem: docker-compose
+    directory: /
+    schedule:
+      interval: weekly
+    cooldown:
+      default-days: 14
+
+  # The SHA-pinned actions in .github/workflows.
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
+    cooldown:
+      default-days: 14
