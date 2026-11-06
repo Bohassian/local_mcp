@@ -1,0 +1,52 @@
+npm run eval holdout after upgrades
+
+== vector
+  paraphrase    hit@5 7/11 (64%)   MRR 0.46
+  all           hit@5 7/11 (64%)   MRR 0.46
+  noise: 2/55 (4%) of results from big settings/server classes
+  markup: 0/55 (0%) of results with RST markup in their heading
+  misses:
+  [paraphrase] How do I make an enemy find its way around obstacles?
+      got: tutorials/navigation/navigation_using_navigationobstacles.rst, classes/class_navigationagent2d.rst, classes/class_navigationagent3d.rst, classes/class_navigationobstacle2d.rst
+  [paraphrase] How do I remember settings like volume between play sessions?
+      got: classes/class_videostreamplayer.rst, tutorials/ui/creating_applications.rst, classes/class_audiostreamplayer2d.rst, classes/class_audiostreamplayer.rst
+  [paraphrase] How do I make something happen after a short delay?
+      got: classes/class_os.rst, classes/class_methodtweener.rst, classes/class_propertytweener.rst, classes/class_callbacktweener.rst
+  [paraphrase] How do I keep buttons lined up neatly in a menu?
+      got: classes/class_button.rst, classes/class_tree.rst, classes/class_menubutton.rst, classes/class_tabbar.rst
+
+== fts
+  paraphrase    hit@5 4/11 (36%)   MRR 0.26
+  all           hit@5 4/11 (36%)   MRR 0.26
+  noise: 5/55 (9%) of results from big settings/server classes
+  markup: 0/55 (0%) of results with RST markup in their heading
+  misses:
+  [paraphrase] How do I make my game look right on screens of different sizes?
+      got: getting_started/introduction/first_look_at_the_editor.rst, classes/class_xrfacetracker.rst, tutorials/rendering/hdr_output.rst
+  [paraphrase] How do I show the score in the corner of the screen?
+      got: getting_started/first_3d_game/08.score_and_replay.rst, tutorials/troubleshooting.rst, classes/class_fuzzysearchmatch.rst
+  [paraphrase] How do I make an enemy find its way around obstacles?
+      got: getting_started/first_2d_game/04.creating_the_enemy.rst, tutorials/navigation/navigation_using_navigationobstacles.rst, classes/class_astargrid2d.rst
+  [paraphrase] How do I remember settings like volume between play sessions?
+      got: classes/class_audiostreamplayer.rst, classes/class_audiostreamplaybackpolyphonic.rst, tutorials/xr/openxr_settings.rst, classes/class_renderingserver.rst
+  [paraphrase] How do I swap to a running animation when the character moves?
+      got: classes/class_animation.rst, getting_started/first_3d_game/09.adding_animations.rst, classes/class_textedit.rst
+  [paraphrase] How do I make something happen after a short delay?
+      got: tutorials/audio/audio_effects.rst, classes/class_methodtweener.rst, classes/class_propertytweener.rst, classes/class_animationnodeoneshot.rst, classes/class_editorsettings.rst
+  [paraphrase] How do I keep buttons lined up neatly in a menu?
+      got: classes/class_spinbox.rst, classes/class_@globalscope.rst, tutorials/inputs/input_examples.rst, classes/class_displayserver.rst
+
+== hybrid
+  paraphrase    hit@5 7/11 (64%)   MRR 0.39
+  all           hit@5 7/11 (64%)   MRR 0.39
+  noise: 0/55 (0%) of results from big settings/server classes
+  markup: 0/55 (0%) of results with RST markup in their heading
+  misses:
+  [paraphrase] How do I make an enemy find its way around obstacles?
+      got: tutorials/navigation/navigation_using_navigationobstacles.rst, classes/class_astargrid2d.rst, classes/class_navigationserver3d.rst, getting_started/first_2d_game/04.creating_the_enemy.rst
+  [paraphrase] How do I remember settings like volume between play sessions?
+      got: classes/class_audiostreamplayer.rst, classes/class_videostreamplayer.rst, classes/class_audiostreamplayer2d.rst, classes/class_audiostreamrandomizer.rst
+  [paraphrase] How do I make something happen after a short delay?
+      got: classes/class_methodtweener.rst, classes/class_propertytweener.rst, classes/class_callbacktweener.rst, classes/class_subtweentweener.rst, classes/class_richtextlabel.rst
+  [paraphrase] How do I keep buttons lined up neatly in a menu?
+      got: classes/class_spinbox.rst, classes/class_buttongroup.rst, classes/class_button.rst
