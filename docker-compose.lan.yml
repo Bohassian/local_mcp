@@ -1,0 +1,11 @@
+# Also publishes the MCP server on one LAN address, alongside 127.0.0.1.
+# Enable with COMPOSE_FILE in .env, and set MCP_LAN_IP and MCP_ALLOWED_HOSTS
+# (see .env.example).
+#
+# Bound to one address, not 0.0.0.0, so it doesn't also appear on Docker
+# bridges, VPNs or other interfaces. Docker's published ports bypass ufw, so
+# this binding is the firewall. Ollama stays on 127.0.0.1.
+services:
+  mcp:
+    ports:
+      - "${MCP_LAN_IP:?set MCP_LAN_IP in .env}:${MCP_PORT:-3939}:3939"

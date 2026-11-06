@@ -19,4 +19,12 @@ export const config = {
   embedUrl: env('EMBED_URL', 'http://localhost:11434'),
   // Downloaded docs and databases.
   dataDir: path.resolve(ROOT, env('DATA_DIR', 'data')),
+  // Bearer token every MCP client must send. Only the server needs it.
+  token: env('MCP_TOKEN', ''),
+  // Extra hostnames clients may use, comma-separated (e.g. the box's LAN name
+  // and IP). localhost, 127.0.0.1 and local-mcp are always allowed.
+  allowedHosts: env('MCP_ALLOWED_HOSTS', '')
+    .split(',')
+    .map((h) => h.trim().toLowerCase())
+    .filter(Boolean),
 };

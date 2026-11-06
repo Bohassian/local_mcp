@@ -476,20 +476,28 @@ transport:
 - **Sessions.** A client's first request (no `mcp-session-id` header) gets a
   new transport and a new `McpServer`; the SDK assigns a session id, which the
   client sends on every later request
-  ([server.ts:49](../src/server.ts#L49)). The database connection is shared
+  ([server.ts](../src/server.ts), step 5 in `handle`). The database connection is shared
   across sessions.
-- **DNS rebinding protection** ([`isAllowed`](../src/server.ts#L28)). A
+- **DNS rebinding protection** ([`isAllowed`](../src/server.ts)). A
   malicious web page could point its own domain at 127.0.0.1 and have your
   browser call this server. Browsers send that domain in the `Host` header and
   add an `Origin` header; MCP clients don't. So requests are refused unless
   `Host` is one of ours and `Origin` is absent. The MCP spec requires this for
-  local HTTP servers.
+  local HTTP servers. `MCP_ALLOWED_HOSTS` adds the names used on the home
+  network.
+- **Bearer token** ([`isAuthorized`](../src/server.ts)). Every request must
+  carry `Authorization: Bearer <MCP_TOKEN>`, local or not. The server can't
+  reliably tell a local client from a network one: `Host` is set by the
+  client, and Docker can rewrite the source address. So it doesn't try. The
+  tokens are hashed before comparing so the check takes constant time.
 - **Container hardening** ([docker-compose.yml](../docker-compose.yml)):
-  read-only filesystem, no capabilities, ports bound to 127.0.0.1 only.
+  read-only filesystem, no capabilities, ports bound to 127.0.0.1 (plus one
+  LAN address if [docker-compose.lan.yml](../docker-compose.lan.yml) is
+  enabled).
 
 To add a new endpoint (a new set of tools at a new path), write a module that
 implements the `Endpoint` interface ([src/endpoint.ts](../src/endpoint.ts))
-and add it to the list in [server.ts:13](../src/server.ts#L13).
+and add it to the `endpoints` list in [server.ts](../src/server.ts).
 
 ---
 

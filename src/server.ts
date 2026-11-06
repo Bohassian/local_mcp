@@ -1,5 +1,5 @@
 import http from 'node:http';
-import { randomUUID } from 'node:crypto';
+import { createHash, randomUUID, timingSafeEqual } from 'node:crypto';
 import { StreamableHTTPServerTransport } from '@modelcontextprotocol/sdk/server/streamableHttp.js';
 import { config } from './config.js';
 import type { Endpoint } from './endpoint.js';
@@ -8,13 +8,23 @@ import { docsEndpoint } from './docs/endpoint.js';
 // The HTTP server. Routes each request to an endpoint by URL path and keeps
 // track of client sessions.
 
+// Every client must send this token, whether it connects from this machine or
+// over the network. Checked before anything else starts.
+const MIN_TOKEN_LENGTH = 32;
+if (config.token.length < MIN_TOKEN_LENGTH) {
+  console.error(
+    `MCP_TOKEN must be set to at least ${MIN_TOKEN_LENGTH} characters. Generate one with: openssl rand -hex 32`,
+  );
+  process.exit(1);
+}
+
 // The endpoints this server hosts. To add one, write a module like
 // src/docs/endpoint.ts and list it here.
 const endpoints: Endpoint[] = [await docsEndpoint()];
 
-// Hostnames clients may use to reach us: from the host machine, or from
-// another container by name.
-const ALLOWED_HOSTNAMES = new Set(['localhost', '127.0.0.1', 'local-mcp']);
+// Hostnames clients may use to reach us: from the host machine, from another
+// container by name, or from the home network (MCP_ALLOWED_HOSTS).
+const ALLOWED_HOSTNAMES = new Set(['localhost', '127.0.0.1', 'local-mcp', ...config.allowedHosts]);
 
 // Open sessions, keyed by the id clients send in the `mcp-session-id` header.
 type Session = { path: string; transport: StreamableHTTPServerTransport };
@@ -26,8 +36,17 @@ const sessions = new Map<string, Session>();
 // page that points its own hostname at this machine sends that hostname as
 // Host, and browsers send Origin with cross-site requests. MCP clients don't.
 function isAllowed(req: http.IncomingMessage): boolean {
-  const hostname = (req.headers.host ?? '').replace(/:\d+$/, '');
+  const hostname = (req.headers.host ?? '').replace(/:\d+$/, '').toLowerCase();
   return ALLOWED_HOSTNAMES.has(hostname) && req.headers.origin === undefined;
+}
+
+// Checks `Authorization: Bearer <MCP_TOKEN>`. Both sides are hashed first so
+// the comparison takes the same time whatever the client sends.
+const tokenHash = createHash('sha256').update(config.token).digest();
+function isAuthorized(req: http.IncomingMessage): boolean {
+  const match = /^Bearer (.+)$/.exec(req.headers.authorization ?? '');
+  if (!match) return false;
+  return timingSafeEqual(createHash('sha256').update(match[1]).digest(), tokenHash);
 }
 
 function reply(res: http.ServerResponse, status: number, body?: string) {
@@ -45,7 +64,14 @@ async function handle(req: http.IncomingMessage, res: http.ServerResponse) {
     return reply(res, 403);
   }
 
-  // 3. Requests in an existing session go to that session's transport.
+  // 3. Require the token. (Logged without the header, which may hold a guess.)
+  if (!isAuthorized(req)) {
+    console.log(`unauthorized host=${req.headers.host} path=${req.url}`);
+    res.writeHead(401, { 'WWW-Authenticate': 'Bearer' }).end();
+    return;
+  }
+
+  // 4. Requests in an existing session go to that session's transport.
   const sessionId = req.headers['mcp-session-id'];
   if (typeof sessionId === 'string') {
     const session = sessions.get(sessionId);
@@ -53,7 +79,7 @@ async function handle(req: http.IncomingMessage, res: http.ServerResponse) {
     return session.transport.handleRequest(req, res);
   }
 
-  // 4. Otherwise a client is starting a session: give it its own transport and
+  // 5. Otherwise a client is starting a session: give it its own transport and
   // server. The SDK picks the session id; we record it once the session starts.
   const transport: StreamableHTTPServerTransport = new StreamableHTTPServerTransport({
     sessionIdGenerator: randomUUID,

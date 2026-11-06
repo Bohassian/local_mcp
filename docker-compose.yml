@@ -16,6 +16,10 @@ services:
     environment:
       MCP_PORT: "3939"
       EMBED_URL: "http://ollama:11434"
+      MCP_TOKEN: "${MCP_TOKEN:?set MCP_TOKEN in .env (openssl rand -hex 32)}"
+      MCP_ALLOWED_HOSTS: "${MCP_ALLOWED_HOSTS:-}"
+    # Localhost only. To also serve the home network, add
+    # docker-compose.lan.yml via COMPOSE_FILE in .env.
     ports:
       - "127.0.0.1:${MCP_PORT:-3939}:3939"
     volumes:

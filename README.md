@@ -37,18 +37,40 @@ Needs Docker, plus Node 24 and Yarn 1 on the host. Ollama runs on the CPU unless
 
 ```bash
 cp .env.example .env
+# set MCP_TOKEN in .env:  openssl rand -hex 32
 yarn install
 docker compose up -d --build     # ollama, ollama-pull (fetches the model once), mcp
 ```
 
-The server checks the embedding model at startup and exits if it's missing or the wrong size.
+The server checks the embedding model at startup and exits if it's missing or the wrong size. It also exits if `MCP_TOKEN` is unset or shorter than 32 characters.
 
 ```bash
 docker compose logs -f mcp       # one line per tool call: args, result size, time
 npx @modelcontextprotocol/inspector@0.21.2 http://localhost:3939/docs   # try the tools by hand
 ```
 
-MCP clients connect to `http://localhost:3939/<endpoint>`, e.g. `http://localhost:3939/docs`. Containers on the same Docker network can use `http://local-mcp:3939/<endpoint>`.
+In the Inspector, put the token under Authentication → Bearer Token.
+
+### Connecting clients
+
+MCP clients connect to `http://localhost:3939/<endpoint>`, e.g. `http://localhost:3939/docs`, and must send `Authorization: Bearer <MCP_TOKEN>`. Requests without it get a 401. Containers on the same Docker network can use `http://local-mcp:3939/<endpoint>`.
+
+```bash
+# Claude Code
+claude mcp add --transport http docs http://localhost:3939/docs --header "Authorization: Bearer $MCP_TOKEN"
+# pi
+pi mcp add docs --url http://localhost:3939/docs --bearer-token-env-var MCP_TOKEN
+```
+
+### Serving the home network
+
+The server can listen on the machine's LAN address as well as on localhost. In `.env`:
+
+1. Add `docker-compose.lan.yml` to `COMPOSE_FILE`.
+2. Set `MCP_LAN_IP` to the machine's LAN address. Give the machine a fixed address with a DHCP reservation.
+3. Set `MCP_ALLOWED_HOSTS` to every name clients will put in the URL, e.g. `gpubox,gpubox.local,192.168.1.50`. Requests using any other name are refused with a 403. This is the DNS-rebinding check.
+
+Then run `docker compose up -d`, and point clients at `http://gpubox:3939/docs` with the same token. Traffic is plain HTTP, so the token crosses the LAN unencrypted. That's fine on a home network. Use Tailscale or a TLS proxy if you need more. Ollama stays on localhost either way.
 
 ## Docs endpoint
 
