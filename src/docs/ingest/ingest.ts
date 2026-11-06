@@ -117,7 +117,9 @@ async function ingest(src: SourceConfig) {
     const anchorChunk = new Map<string, number>();
     chunks.forEach((c, i) => {
       const id = Number(insertChunk.run(src.id, pageIds[c.pageIndex], c.heading, c.anchor ?? null, c.text).lastInsertRowid);
-      // vec0 needs an integer key; better-sqlite3 binds plain numbers as REAL.
+      // vec0 needs an integer key; better-sqlite3 binds plain numbers as REAL
+      // (floating point) and only BigInts as INTEGER.
+      // https://github.com/WiseLibs/better-sqlite3/blob/master/docs/api.md#binding-parameters
       insertVec.run(BigInt(id), vectors[i], src.id);
       insertFts.run(id, c.heading, c.text, src.id);
       const key = `${c.pageIndex}#${c.anchor}`;

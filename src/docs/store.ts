@@ -14,7 +14,10 @@ export const DOCS_DB_PATH = path.join(config.dataDir, 'docs.db');
 // re-ingesting. The model name is repeated in docker-compose.yml (ollama-pull).
 export const EMBED_MODEL = 'qwen3-embedding:4b';
 export const EMBEDDING_DIM = 2560;
-// Qwen3-Embedding: queries carry a task instruction, documents nothing.
+// Qwen3-Embedding: queries carry a task instruction, documents nothing. A
+// question and its answer are worded differently, and the instruction tells
+// the model which side of that pair it is encoding.
+// https://huggingface.co/Qwen/Qwen3-Embedding-4B (see "Usage")
 export const QUERY_PREFIX =
   'Instruct: Given a question about a programming language, framework or API, retrieve documentation passages that answer it\nQuery:';
 export const DOC_PREFIX = '';
@@ -52,6 +55,8 @@ CREATE TABLE IF NOT EXISTS chunks (
 CREATE INDEX IF NOT EXISTS chunks_source ON chunks (source);
 CREATE INDEX IF NOT EXISTS chunks_page ON chunks (page_id);
 
+-- sqlite-vec's vector index: one row per chunk, keyed by chunks.id.
+-- https://alexgarcia.xyz/sqlite-vec/features/vec0.html
 -- source is a metadata column, so KNN queries can filter on it.
 CREATE VIRTUAL TABLE IF NOT EXISTS chunks_vec USING vec0(
   chunk_id INTEGER PRIMARY KEY,
@@ -59,6 +64,7 @@ CREATE VIRTUAL TABLE IF NOT EXISTS chunks_vec USING vec0(
   source TEXT
 );
 
+-- SQLite's full-text (keyword) index. https://www.sqlite.org/fts5.html
 -- rowid = chunks.id. Plain (not external-content) so rows delete by rowid.
 CREATE VIRTUAL TABLE IF NOT EXISTS chunks_fts USING fts5(
   heading,
@@ -92,6 +98,8 @@ export function openStore(dbPath = DOCS_DB_PATH): DocsDb {
   return db;
 }
 
+// sqlite-vec stores a float[N] column as raw 32-bit floats; JS numbers are
+// 64-bit, so convert before binding.
 export function toBuffer(vector: number[]): Buffer {
   const f32 = new Float32Array(vector);
   return Buffer.from(f32.buffer, f32.byteOffset, f32.byteLength);

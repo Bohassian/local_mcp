@@ -8,6 +8,8 @@ Local MCP server. One HTTP server hosts several MCP **endpoints**, one per URL p
 
 Nothing leaves the machine at runtime. Embeddings come from a local Ollama.
 
+New to search, embeddings or MCP? [docs/HOW_IT_WORKS.md](docs/HOW_IT_WORKS.md) explains the concepts and walks a real query through the code.
+
 ## Layout
 
 ```
@@ -24,6 +26,7 @@ src/
     ingest/            yarn ingest / fetch-docs, plus a reader per doc format
     eval/              yarn eval, plus question sets
 data/                Gitignored: downloaded docs and docs.db
+docs/                HOW_IT_WORKS.md: concepts and a guided tour of the code
 ```
 
 The server runs in Docker. The `yarn` scripts (ingest, eval) run on the host and share `data/` with it through a bind mount.
@@ -88,3 +91,11 @@ The eval reports hit@k and MRR per question kind. Run it before and after changi
 3. Point your MCP client at `http://localhost:3939/<path>`.
 
 `src/docs/endpoint.ts` is the worked example.
+
+## Tests
+
+```bash
+yarn test                        # no Ollama or docs.db needed
+```
+
+The tests (`src/**/*.test.ts`) double as examples of how chunking, the readers and each search stage behave.

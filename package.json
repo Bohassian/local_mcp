@@ -8,6 +8,7 @@
     "start": "node dist/server.js",
     "dev": "tsx watch src/server.ts",
     "typecheck": "tsc --noEmit",
+    "test": "node --import tsx --test 'src/**/*.test.ts'",
     "ingest": "tsx src/docs/ingest/ingest.ts",
     "fetch-docs": "tsx src/docs/ingest/fetch-devdocs.ts",
     "eval": "tsx src/docs/eval/eval.ts"

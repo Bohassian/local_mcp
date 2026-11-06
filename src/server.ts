@@ -20,7 +20,9 @@ const ALLOWED_HOSTNAMES = new Set(['localhost', '127.0.0.1', 'local-mcp']);
 type Session = { path: string; transport: StreamableHTTPServerTransport };
 const sessions = new Map<string, Session>();
 
-// Blocks DNS rebinding, which the MCP spec requires for HTTP servers. A web
+// Blocks DNS rebinding, which the MCP spec requires for HTTP servers
+// (https://modelcontextprotocol.io/specification/2025-11-25/basic/transports,
+// "Security Warning"). A web
 // page that points its own hostname at this machine sends that hostname as
 // Host, and browsers send Origin with cross-site requests. MCP clients don't.
 function isAllowed(req: http.IncomingMessage): boolean {

@@ -1,3 +1,5 @@
+// Why chunk at all: see docs/HOW_IT_WORKS.md#chunks-and-tokens.
+//
 // Naive paragraph-aware chunker. Targets ~500 tokens per chunk with one
 // paragraph of overlap between adjacent chunks. We approximate tokens as
 // chars/4 — close enough for retrieval; precision doesn't matter here, the

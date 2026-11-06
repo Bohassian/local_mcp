@@ -6,6 +6,8 @@ import { type DocsDb, QUERY_PREFIX, sourceFilter, sourceParams, toBuffer } from 
 //   fts     FTS5 BM25 over heading + text; good for exact words
 //   symbol  query identifiers matched against the symbol table, so
 //           `move_and_slide` or `QueryMethods where` land on the API entry
+//
+// New to search? docs/HOW_IT_WORKS.md walks a real query through this file.
 
 export type SearchMode = 'vector' | 'fts' | 'hybrid';
 
@@ -22,6 +24,8 @@ export interface SearchResult {
 
 const CANDIDATES = 50; // per list
 const MAX_PER_PAGE = 2; // so one huge class page can't fill the results
+// Damps the gap between ranks 1, 2, 3...; 60 is the value the RRF paper found
+// works well across collections. https://plg.uwaterloo.ca/~gvcormac/cormacksigir09-rrf.pdf
 const RRF_K = 60;
 
 const STOPWORDS = new Set(
@@ -32,13 +36,15 @@ const STOPWORDS = new Set(
 const MEMBER_SEP = /(?:#|::|\.)/;
 
 // Query words, keeping identifier characters (_ . @ # :) together.
-function queryTerms(query: string): string[] {
+export function queryTerms(query: string): string[] {
   return (query.match(/[\p{L}\p{N}_.@#:?!]+/gu) ?? [])
     .map((t) => t.replace(/^[.#:]+|[.():]+$/g, ''))
     .filter((t) => t.length > 1 && !STOPWORDS.has(t.toLowerCase()));
 }
 
-function vectorIds(db: DocsDb, vector: number[], sources: string[]): number[] {
+export function vectorIds(db: DocsDb, vector: number[], sources: string[]): number[] {
+  // KNN (k-nearest neighbors): the k stored vectors closest to the query's.
+  // https://alexgarcia.xyz/sqlite-vec/features/knn.html
   // One KNN per source, merged by distance: vec0 metadata filters only
   // reliably support equality.
   const knn = (source?: string) =>
@@ -56,11 +62,13 @@ function vectorIds(db: DocsDb, vector: number[], sources: string[]): number[] {
     .map((r) => Number(r.chunk_id));
 }
 
-function ftsIds(db: DocsDb, terms: string[], sources: string[]): number[] {
+export function ftsIds(db: DocsDb, terms: string[], sources: string[]): number[] {
   if (terms.length === 0) return [];
   // Each term as a quoted phrase, so FTS5 doesn't parse it as syntax.
   const match = terms.map((t) => `"${t.replace(/"/g, '""')}"`).join(' OR ');
-  // Heading matches weigh 10x body matches.
+  // Heading matches weigh 10x body matches. bm25() takes one weight per FTS
+  // column (heading, text, source); lower scores are better, hence ascending.
+  // https://www.sqlite.org/fts5.html#the_bm25_function
   return db
     .prepare<object, { rowid: number }>(
       `SELECT rowid FROM chunks_fts
@@ -75,12 +83,12 @@ function ftsIds(db: DocsDb, terms: string[], sources: string[]): number[] {
 // snake_case, dotted, namespaced, or capitalized (Node2D, QueryMethods, Label).
 // Plain words ("play", "where") also name members, but matching them alone
 // swamps natural-language questions with unrelated API entries.
-function looksLikeIdentifier(term: string): boolean {
+export function looksLikeIdentifier(term: string): boolean {
   return /[_.@#]|::/.test(term) || /^.+[A-Z0-9]/.test(term) || /^[A-Z][a-z]+$/.test(term);
 }
 
 // `label.text` -> `label`, `activerecord::querymethods#where` -> `activerecord::querymethods`.
-function ownerOf(nameLc: string): string {
+export function ownerOf(nameLc: string): string {
   return nameLc.replace(new RegExp(`${MEMBER_SEP.source}[^#:.]+$`), '');
 }
 
@@ -89,7 +97,7 @@ function ownerOf(nameLc: string): string {
 //   2. members of a class named in the query ("label" + "text" -> Label.text)
 //   3. those classes themselves
 //   4. bare identifier-like terms, as a symbol or member name
-function symbolIds(db: DocsDb, terms: string[], sources: string[]): number[] {
+export function symbolIds(db: DocsDb, terms: string[], sources: string[]): number[] {
   const words = terms.map((t) => t.toLowerCase());
   // A one-word query is an API name even when it's a plain word ("pluck").
   const idents = (terms.length === 1 ? terms : terms.filter(looksLikeIdentifier)).map((t) => t.toLowerCase());
@@ -143,7 +151,9 @@ function symbolIds(db: DocsDb, terms: string[], sources: string[]): number[] {
 }
 
 // Reciprocal rank fusion: each list adds 1 / (RRF_K + rank) to an id's score.
-function fuse(lists: number[][]): Map<number, number> {
+// Only positions count, so a BM25 score and a vector distance never need
+// converting to a common scale.
+export function fuse(lists: number[][]): Map<number, number> {
   const scores = new Map<number, number>();
   for (const list of lists) {
     list.forEach((id, rank) => scores.set(id, (scores.get(id) ?? 0) + 1 / (RRF_K + rank + 1)));
