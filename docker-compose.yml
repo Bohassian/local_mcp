@@ -33,8 +33,8 @@ services:
     pids_limit: 512
 
   ollama:
-    # Pinned 2026-05-15. Bump deliberately.
-    image: ollama/ollama:0.24.0
+    # Pinned 2026-11-06 (0.40.10, released 2026-10-23). Take releases at least 14 days old.
+    image: ollama/ollama:0.40.10
     container_name: local-mcp-ollama
     restart: unless-stopped
     # Localhost only: Ollama has no auth, and Docker's published ports bypass
@@ -55,7 +55,7 @@ services:
   # One-shot: pulls the embedding model if it's missing, then exits. Skips the
   # network entirely when it's present.
   ollama-pull:
-    image: ollama/ollama:0.24.0
+    image: ollama/ollama:0.40.10
     depends_on: [ollama]
     volumes:
       - ollama-models:/root/.ollama
