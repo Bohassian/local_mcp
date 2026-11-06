@@ -6,8 +6,8 @@ import { EMBED_MODEL, openStore } from '../store.js';
 // Retrieval eval: for each query in <set>.json, is one of the expected pages in
 // the top k? Reports hit@k and MRR per query kind, plus the misses.
 //
-//   yarn eval                    # godot set, k=5, every mode
-//   yarn eval rails 5 hybrid     # one mode: vector | fts | hybrid
+//   npm run eval                     # godot set, k=5, every mode
+//   npm run eval -- rails 5 hybrid   # one mode: vector | fts | hybrid
 
 interface EvalQuery {
   kind: string;

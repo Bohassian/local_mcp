@@ -13,8 +13,8 @@ import { readRst } from './readers/rst.js';
 
 // Ingests sources from src/docs/sources.json into data/docs.db.
 //
-//   yarn ingest godot-manual godot-api
-//   yarn ingest --all
+//   npm run ingest -- godot-manual godot-api
+//   npm run ingest -- --all
 //
 // Reads local files only. Each run replaces the source's rows entirely.
 
@@ -149,7 +149,7 @@ const args = process.argv.slice(2);
 const selected = args.includes('--all')
   ? sources
   : args.map((id) => sources.find((s) => s.id === id) ?? fail(`Unknown source "${id}". Known: ${known}`));
-if (selected.length === 0) fail(`Usage: yarn ingest <source-id>... | --all\nSources: ${known}`);
+if (selected.length === 0) fail(`Usage: npm run ingest -- <source-id>... | --all\nSources: ${known}`);
 
 function fail(message: string): never {
   console.error(message);

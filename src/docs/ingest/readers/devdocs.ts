@@ -4,7 +4,7 @@ import { ANCHOR, htmlToText } from './html.js';
 import { readMarkdown } from './markdown.js';
 import type { DocSymbol, Page, Section } from './types.js';
 
-// DevDocs bundle (data/devdocs/<slug>/, fetched by `yarn fetch-docs`):
+// DevDocs bundle (data/devdocs/<slug>/, fetched by `npm run fetch-docs`):
 //   index.json  { entries: [{ name, path, type }] }  path = "page#anchor" or "page"
 //   db.json     { "<page>": "<html>" }
 // Each page becomes one Page. Anchored index entries split the page into one

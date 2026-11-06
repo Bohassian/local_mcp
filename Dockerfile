@@ -3,18 +3,19 @@
 # native binaries inside their npm packages, and Node brings its own CA store.
 FROM node:24-bookworm-slim AS base
 WORKDIR /app
-# The image's bundled Yarn 1, so the build doesn't download a package manager.
-# .yarnrc turns off dependency install scripts (see the file).
-COPY package.json yarn.lock .yarnrc ./
+# The image's bundled npm, so the build doesn't download a package manager.
+# `npm ci` installs exactly package-lock.json; .npmrc turns off dependency
+# install scripts (see the file).
+COPY package.json package-lock.json .npmrc ./
 
 FROM base AS deps
-RUN yarn install --frozen-lockfile --production
+RUN npm ci --omit=dev
 
 FROM base AS build
-RUN yarn install --frozen-lockfile
+RUN npm ci
 COPY tsconfig.json ./
 COPY src ./src
-RUN yarn build
+RUN npm run build
 
 FROM node:24-bookworm-slim
 WORKDIR /app
