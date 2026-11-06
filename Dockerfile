@@ -1,12 +1,11 @@
-# Debian slim, not alpine: better-sqlite3 ships prebuilt binaries for glibc.
+# Debian slim, not alpine: sqlite-vec's prebuilt extension targets glibc.
+# No compilers or apt packages: better-sqlite3 (13+) and sqlite-vec ship their
+# native binaries inside their npm packages, and Node brings its own CA store.
 FROM node:24-bookworm-slim AS base
 WORKDIR /app
-# Fallback for building better-sqlite3 from source if no prebuilt binary fits.
-RUN apt-get update && apt-get install -y --no-install-recommends \
-    python3 build-essential ca-certificates \
-  && rm -rf /var/lib/apt/lists/*
 # The image's bundled Yarn 1, so the build doesn't download a package manager.
-COPY package.json yarn.lock ./
+# .yarnrc turns off dependency install scripts (see the file).
+COPY package.json yarn.lock .yarnrc ./
 
 FROM base AS deps
 RUN yarn install --frozen-lockfile --production
