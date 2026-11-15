@@ -49,6 +49,17 @@ services:
       # Flash attention enables the q8_0 KV cache (about half the memory).
       OLLAMA_FLASH_ATTENTION: "1"
       OLLAMA_KV_CACHE_TYPE: "q8_0"
+    # Healthy once the server answers. ollama-pull waits for this; a plain
+    # depends_on only waits for the container to start, so the pull could
+    # hit "connection refused" and fail the whole stack.
+    # https://docs.docker.com/compose/how-tos/startup-order/
+    healthcheck:
+      test: ["CMD", "ollama", "list"]
+      start_period: 60s
+      start_interval: 1s
+      interval: 30s
+      timeout: 5s
+      retries: 3
     # CPU by default. For a GPU, add docker-compose.nvidia.yml or
     # docker-compose.amd.yml via COMPOSE_FILE in .env.
 
@@ -56,7 +67,9 @@ services:
   # network entirely when it's present.
   ollama-pull:
     image: ollama/ollama:0.40.10
-    depends_on: [ollama]
+    depends_on:
+      ollama:
+        condition: service_healthy
     volumes:
       - ollama-models:/root/.ollama
     environment:
