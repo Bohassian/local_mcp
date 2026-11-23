@@ -151,3 +151,11 @@ Versions only move deliberately: npm packages through `package-lock.json` (insta
 - **CI** (`.github/workflows/ci.yml`) runs on every PR: `npm ci`, `npm audit signatures` (each package is the one the registry signed), `npm audit --audit-level=high`, typecheck, tests, the Docker build, and a check that the native modules load inside the image. It can't run the server or the evals.
 - **Before merging a bump**, run `npm run eval` for all three sets (`godot`, `rails`, `holdout`) and compare against the numbers from before. For a change made by hand, also run what CI runs: `npm audit`, `npm run typecheck`, `npm test`, `docker compose build mcp`.
 - **Bumping Ollama** can change the vectors the embedding model returns, so they no longer match the ones in `docs.db`. Run `npm run embed-drift` before and after. Identical vectors give 1.00000. A median around 0.999 with an unchanged eval needs nothing. Anything clearly lower means `npm run ingest -- --all`. Changing `EMBED_MODEL` always needs a re-ingest (see `src/docs/store.ts`).
+
+## License
+
+local_mcp is free software. You can share and change it under the terms of the [GNU General Public License](https://www.gnu.org/licenses/gpl-3.0.html), version 3 or (at your option) any later version. See [LICENSE](LICENSE) for the full text.
+
+It comes with no warranty. The GPL says so in sections 15 and 16. The [GPL FAQ](https://www.gnu.org/licenses/gpl-faq.html) answers common questions.
+
+The docs you download into `data/` are not covered by this license. Each keeps its own license from its publisher.
